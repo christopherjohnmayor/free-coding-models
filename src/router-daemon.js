@@ -1047,7 +1047,27 @@ class RouterRuntime {
     if (candidates.length === 0) {
       const health = this.getModelHealth(set)
       const quotaExhausted = [...this.quotaExhausted].filter((key) => set.models.some((model) => modelKey(model.provider, model.model) === key))
-      sendError(res, 503, `All models in set are unavailable: ${set.name}`, 'service_unavailable', 'all_models_unavailable', requestId, {
+      
+      let statusCode = 503
+      let errorCode = 'all_models_unavailable'
+      let errorType = 'service_unavailable'
+      if (health.length > 0) {
+        if (health.every((h) => h.state === 'AUTH_ERROR')) {
+          statusCode = 401
+          errorCode = 'invalid_api_key'
+          errorType = 'invalid_request_error'
+        } else if (health.every((h) => h.state === 'AUTH_ERROR' || quotaExhausted.includes(h.key))) {
+          statusCode = 429
+          errorCode = 'insufficient_quota'
+          errorType = 'insufficient_quota'
+        } else if (health.every((h) => h.state === 'STALE' || h.state === 'UNSUPPORTED')) {
+          statusCode = 400
+          errorCode = 'invalid_model'
+          errorType = 'invalid_request_error'
+        }
+      }
+
+      sendError(res, statusCode, `All models in set are unavailable: ${set.name}`, errorType, errorCode, requestId, {
         set: set.name,
         models_tried: [],
         quota_exhausted: quotaExhausted,
