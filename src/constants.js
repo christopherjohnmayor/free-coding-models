@@ -101,7 +101,7 @@ export const WIDTH_WARNING_MIN_COLS = 80
 
 // 📖 Table row-budget constants — must stay in sync with renderTable()'s actual output.
 // 📖 If this drifts, model rows overflow and can push the title row out of view.
-export const TABLE_HEADER_LINES = 5  // 📖 title, filter bar, spacer, column headers, separator
+export const TABLE_HEADER_LINES = 4  // 📖 title, filter bar, column headers, separator
 export const TABLE_FOOTER_LINES = 1  // 📖 single toggle-hint line when collapsed, full footer otherwise
 export const TABLE_FIXED_LINES  = TABLE_HEADER_LINES + TABLE_FOOTER_LINES
 

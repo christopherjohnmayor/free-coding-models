@@ -229,21 +229,21 @@ export async function runApp(cliArgs, config) {
 
   // 📖 Shell env migration popup for existing users who haven't been asked yet
   // 📖 Only show when user has keys but shellEnvEnabled is still undefined (never prompted)
-  if (hasAnyKey && config.settings.shellEnvEnabled === undefined) {
+  // 📖 shellEnvPromptSeen flag ensures it only shows ONCE even after adding new keys
+  if (hasAnyKey && config.settings.shellEnvEnabled === undefined && config.settings.shellEnvPromptSeen !== true) {
     const choice = await promptShellEnvMigration(config)
+    if (!config.settings) config.settings = {}
+    config.settings.shellEnvPromptSeen = true
     if (choice === 'enable') {
-      if (!config.settings) config.settings = {}
       config.settings.shellEnvEnabled = true
       saveConfig(config)
       syncShellEnv(config)
       ensureShellRcSource()
     } else if (choice === 'never') {
-      if (!config.settings) config.settings = {}
       config.settings.shellEnvEnabled = false
       saveConfig(config)
     }
     if (choice === 'skip') {
-      if (!config.settings) config.settings = {}
       config.settings.shellEnvEnabled = false
       saveConfig(config)
     }
@@ -1147,6 +1147,7 @@ export async function runApp(cliArgs, config) {
         layout.headerRow++
         if (layout.firstModelRow > 0) layout.firstModelRow++
         if (layout.lastModelRow > 0) layout.lastModelRow++
+        if (state.scrollOffset > 0) state.scrollOffset = 0
       }
     }
 

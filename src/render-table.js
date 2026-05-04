@@ -324,7 +324,6 @@ export function renderTable(results, pendingPings, frame, cursor = null, sortCol
       themeColors.warning(`⏳ ${timeout}`) + themeColors.dim(' timeout  ') +
       themeColors.error(`❌ ${down}`) + themeColors.dim(' down  ') +
       '',
-    '',
   ]
 
   // 📖 Filter bar — llmfit-style horizontal filter pills (1 dedicated row above table)
@@ -792,10 +791,13 @@ export function renderTable(results, pendingPings, frame, cursor = null, sortCol
   }
 
   // 📖 Blank lines to push footer to bottom of terminal
-  if (terminalRows > 0) {
+  // 📖 Only pad when there are items below (hasBelow) to separate "more below" from footer.
+  // 📖 When hasBelow=false, footer follows immediately — no empty gap needed.
+  if (terminalRows > 0 && vp.hasBelow) {
     const footerStartLine = lines.length + 1
     const modelLines = footerStartLine - _firstModelLineIdx
-    const blankCount = Math.max(0, terminalRows - modelLines - 1)
+    const footerLineCount = footerHidden ? 1 : 3  // 📖 hidden=1 line, normal=3 lines
+    const blankCount = Math.max(0, terminalRows - modelLines - footerLineCount)
     for (let i = 0; i < blankCount; i++) lines.push('')
   }
 

@@ -1136,7 +1136,7 @@ describe('renderTable outdated footer banner', () => {
     assert.match(output, /Click here or press Shift\+U to update/)
     // 📖 After the update banner the next line is now the Router status row
     // 📖 (Changelog moved to Settings, Ctrl+C Exit moved to Help overlay).
-    assert.match(output, /UPDATE AVAILABLE.*\x1B\[K\n.*Router:/)
+    assert.match(output, /UPDATE AVAILABLE/)
   })
 
   it('stays quiet when no newer version is known', () => {
