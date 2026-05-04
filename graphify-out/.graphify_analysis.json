@@ -1,6 +1,7 @@
 {
   "communities": {
     "0": [
+      "free_coding_models_main",
       "router_daemon_atomicwritejson",
       "router_daemon_attachclientabort",
       "router_daemon_builddefaultrouterset",
@@ -97,6 +98,7 @@
       "router_daemon_tokentracker_record",
       "router_daemon_tokentracker_summary",
       "router_daemon_tokentracker_todaykey",
+      "src_router_daemon_js",
       "telemetry_sendusagetelemetry"
     ],
     "1": [
@@ -162,18 +164,35 @@
       "router_dashboard_tofinitenumber",
       "router_dashboard_togglerouterdashboardprobepause",
       "router_dashboard_toptokenmodel",
-      "router_dashboard_updateroutersetmodels"
+      "router_dashboard_updateroutersetmodels",
+      "security_checkconfigsecurity",
+      "security_fixconfigpermissions",
+      "security_formatmode",
+      "security_formatmoderwx",
+      "security_getconfigpath",
+      "security_getconfigpermissions",
+      "security_isconfigsecure",
+      "security_js",
+      "security_promptsecurityfix"
     ],
     "2": [
-      "app_js",
-      "app_runapp",
-      "cache_clearcache",
-      "cache_getcacheage",
-      "cache_getcachepath",
-      "cache_iscachefresh",
-      "cache_js",
-      "cache_loadcache",
-      "cache_savecache",
+      "agent_tui",
+      "api_key_management",
+      "changelog_v0_3_56",
+      "circuit_breaker",
+      "cli_flags",
+      "command_palette",
+      "cooldown_backoff",
+      "daemon_endpoints",
+      "failure_threshold",
+      "fast_coding_set",
+      "favorites_system",
+      "free_coding_models_daemon_log",
+      "free_coding_models_json",
+      "free_coding_models_project",
+      "free_coding_models_tokens_json",
+      "health_probe_engine",
+      "install_endpoints",
       "key_handler_buildprovidermodelsurl",
       "key_handler_buildprovidertestdetail",
       "key_handler_classifyprovidertestoutcome",
@@ -184,6 +203,60 @@
       "key_handler_parseprovidermodelids",
       "key_handler_sleep",
       "key_handler_testproviderkeydirect",
+      "model_set",
+      "overlay_stack_problem",
+      "parallel_pings",
+      "pnpm_test",
+      "position_picker",
+      "probe_modes",
+      "provider_catalog",
+      "release_process",
+      "request_failover",
+      "reverse_proxy",
+      "router_daemon",
+      "router_dashboard",
+      "router_onboarding",
+      "router_ux_analysis",
+      "scoring_algorithm",
+      "set_manager",
+      "smart_model_router",
+      "smart_recommend",
+      "sources_js",
+      "src_app_js",
+      "src_key_handler_js",
+      "src_overlays_js",
+      "src_render_table_js",
+      "sse_events",
+      "stability_score",
+      "stale_model_detection",
+      "state_explosion_problem",
+      "supply_chain_security",
+      "syncFavoritesToRouter",
+      "sync_set",
+      "telemetry_system",
+      "testfcm_runner",
+      "token_tracking",
+      "token_usage_screen",
+      "tool_launchers",
+      "tui_columns",
+      "tui_shortcuts",
+      "useFilter_hook",
+      "useSSE_hook",
+      "useTheme_hook",
+      "verdict_system",
+      "version_bump_workflow",
+      "web_app_jsx",
+      "web_dashboard"
+    ],
+    "3": [
+      "analysis_fetchopenrouterfreemodels",
+      "analysis_filterbytierorexit",
+      "analysis_isopenrouterfreemodel",
+      "analysis_js",
+      "analysis_runfiablemode",
+      "app_js",
+      "app_runapp",
+      "bin_free_coding_models_js",
       "mouse_containsmousesequence",
       "mouse_createmousehandler",
       "mouse_js",
@@ -191,34 +264,58 @@
       "overlays_createoverlayrenderers",
       "overlays_js",
       "render_helpers_sortresultswithpinnedfavorites",
+      "render_table_getlastlayout",
+      "render_table_js",
+      "render_table_rendertable",
       "setup_js",
       "setup_promptapikey",
-      "shell_env_buildenvcontent",
-      "shell_env_buildrcsourceline",
-      "shell_env_detectshellinfo",
-      "shell_env_ensureshellrcsource",
-      "shell_env_getenvfilepath",
-      "shell_env_js",
-      "shell_env_promptshellenvmigration",
-      "shell_env_removeshellenv",
-      "shell_env_syncshellenv",
-      "updater_checkforupdate",
-      "updater_checkforupdatedetailed",
-      "updater_detectglobalinstallpermission",
-      "updater_detectpackagemanager",
-      "updater_fetchlastreleasedate",
-      "updater_getinstallargs",
-      "updater_getmanualinstallcmd",
-      "updater_hassudocommand",
-      "updater_installupdatecommand",
-      "updater_ispermissionerror",
-      "updater_js",
-      "updater_promptupdatenotification",
-      "updater_relaunchcurrentprocess",
-      "updater_runupdate",
+      "src_analysis_js",
+      "src_theme_js",
+      "src_utils_js",
+      "theme_buildstyle",
+      "theme_currentpalette",
+      "theme_cyclethemesetting",
+      "theme_detectactivetheme",
+      "theme_getproviderrgb",
+      "theme_getreadabletextrgb",
+      "theme_gettheme",
+      "theme_getthemestatuslabel",
+      "theme_gettierrgb",
+      "theme_js",
+      "theme_paintbg",
+      "theme_paintrgb",
+      "theme_themelabel",
+      "tool_metadata_findsimilarcompatiblemodels",
+      "tool_metadata_getcompatibletools",
+      "tool_metadata_gettoolmeta",
+      "tool_metadata_gettoolmodeorder",
+      "tool_metadata_ismodelcompatiblewithtool",
+      "tool_metadata_js",
+      "ui_config_getcolumnspacing",
+      "ui_config_gethorizontalline",
+      "ui_config_getverticalseparator",
+      "ui_config_js",
+      "utils_filterbytier",
+      "utils_findbestmodel",
+      "utils_formatctxwindow",
+      "utils_formatresultsasjson",
+      "utils_getavg",
+      "utils_getjitter",
+      "utils_getp95",
+      "utils_getstabilityscore",
+      "utils_gettoprecommendations",
+      "utils_getuptime",
+      "utils_getverdict",
+      "utils_getversionstatusinfo",
+      "utils_js",
+      "utils_labelfromid",
+      "utils_parseargs",
+      "utils_parsectxtok",
+      "utils_parseswetonum",
+      "utils_scoremodelfortask",
       "utils_sortresults"
     ],
-    "3": [
+    "4": [
       "config_addapikey",
       "config_buildpersistedconfig",
       "config_cloneconfigvalue",
@@ -265,95 +362,10 @@
       "favorites_reorderfavorite",
       "favorites_syncfavoriteflags",
       "favorites_tofavoritekey",
-      "favorites_togglefavoritemodel"
-    ],
-    "4": [
-      "tool_bootstrap_executablesuffixes",
-      "tool_bootstrap_gettoolbootstrapmeta",
-      "tool_bootstrap_gettoolinstallplan",
-      "tool_bootstrap_installtoolwithplan",
-      "tool_bootstrap_isrunnablefile",
-      "tool_bootstrap_istoolinstalled",
-      "tool_bootstrap_js",
-      "tool_bootstrap_pathentries",
-      "tool_bootstrap_resolvebinarypath",
-      "tool_bootstrap_resolvetoolbinarypath",
-      "tool_bootstrap_uniquestrings",
-      "tool_launchers_applyopenaicompatenv",
-      "tool_launchers_backupifexists",
-      "tool_launchers_buildgeminienv",
-      "tool_launchers_buildtoolenv",
-      "tool_launchers_cloneinheritedenv",
-      "tool_launchers_deleteenvkeys",
-      "tool_launchers_ensuredir",
-      "tool_launchers_ensurejcodemodelprefix",
-      "tool_launchers_getdefaulttoolpaths",
-      "tool_launchers_getproviderbaseurl",
-      "tool_launchers_js",
-      "tool_launchers_prepareexternaltoollaunch",
-      "tool_launchers_printconfigartifacts",
-      "tool_launchers_readjson",
-      "tool_launchers_resolvelaunchcommand",
-      "tool_launchers_resolvelaunchermodelid",
-      "tool_launchers_restarthermesgateway",
-      "tool_launchers_spawncommand",
-      "tool_launchers_startexternaltool",
-      "tool_launchers_writeaiderconfig",
-      "tool_launchers_writeampconfig",
-      "tool_launchers_writeclineconfig",
-      "tool_launchers_writecontinueconfig",
-      "tool_launchers_writecrushconfig",
-      "tool_launchers_writegooseconfig",
-      "tool_launchers_writehermesconfig",
-      "tool_launchers_writejson",
-      "tool_launchers_writeopenhandsenv",
-      "tool_launchers_writepiconfig",
-      "tool_launchers_writeqwenconfig",
-      "tool_launchers_writerovoconfig"
+      "favorites_togglefavoritemodel",
+      "src_config_js"
     ],
     "5": [
-      "analysis_fetchopenrouterfreemodels",
-      "analysis_filterbytierorexit",
-      "analysis_js",
-      "analysis_runfiablemode",
-      "cli_help_buildclihelplines",
-      "cli_help_buildclihelptext",
-      "cli_help_formatentry",
-      "cli_help_js",
-      "cli_help_paint",
-      "render_table_getlastlayout",
-      "render_table_js",
-      "render_table_rendertable",
-      "tool_metadata_findsimilarcompatiblemodels",
-      "tool_metadata_getcompatibletools",
-      "tool_metadata_gettoolmeta",
-      "tool_metadata_gettoolmodeorder",
-      "tool_metadata_ismodelcompatiblewithtool",
-      "tool_metadata_js",
-      "ui_config_getcolumnspacing",
-      "ui_config_gethorizontalline",
-      "ui_config_getverticalseparator",
-      "ui_config_js",
-      "utils_filterbytier",
-      "utils_findbestmodel",
-      "utils_formatctxwindow",
-      "utils_formatresultsasjson",
-      "utils_getavg",
-      "utils_getjitter",
-      "utils_getp95",
-      "utils_getstabilityscore",
-      "utils_gettoprecommendations",
-      "utils_getuptime",
-      "utils_getverdict",
-      "utils_getversionstatusinfo",
-      "utils_js",
-      "utils_labelfromid",
-      "utils_parseargs",
-      "utils_parsectxtok",
-      "utils_parseswetonum",
-      "utils_scoremodelfortask"
-    ],
-    "6": [
       "endpoint_installer_backupifexists",
       "endpoint_installer_buildcatalogmodel",
       "endpoint_installer_buildinstallrecord",
@@ -392,7 +404,111 @@
       "endpoint_installer_writejson",
       "endpoint_installer_writesimpleyamlmap"
     ],
+    "6": [
+      "app_legacy",
+      "app_legacy_animatevalue",
+      "app_legacy_builddetailchart",
+      "app_legacy_connectsse",
+      "app_legacy_downloadfile",
+      "app_legacy_escapehtml",
+      "app_legacy_formatavg",
+      "app_legacy_formatping",
+      "app_legacy_getfilteredmodels",
+      "app_legacy_loadsettingspage",
+      "app_legacy_maskkey",
+      "app_legacy_parsectx",
+      "app_legacy_parseswe",
+      "app_legacy_pingclass",
+      "app_legacy_populateproviderfilter",
+      "app_legacy_renderanalytics",
+      "app_legacy_renderleaderboard",
+      "app_legacy_renderproviderhealth",
+      "app_legacy_rendersettingsproviders",
+      "app_legacy_rendertable",
+      "app_legacy_rendertierdistribution",
+      "app_legacy_showdetailpanel",
+      "app_legacy_showtoast",
+      "app_legacy_sparkline",
+      "app_legacy_stabilitycell",
+      "app_legacy_sweclass",
+      "app_legacy_switchview",
+      "app_legacy_tierbadge",
+      "app_legacy_tierrank",
+      "app_legacy_toggletheme",
+      "app_legacy_updatedetailpanel",
+      "app_legacy_updatestats",
+      "app_legacy_verdictbadge",
+      "app_legacy_verdictrank",
+      "web_app_legacy_js"
+    ],
     "7": [
+      "src_tool_launchers_js",
+      "tool_launchers_applyopenaicompatenv",
+      "tool_launchers_backupifexists",
+      "tool_launchers_buildgeminienv",
+      "tool_launchers_buildtoolenv",
+      "tool_launchers_cloneinheritedenv",
+      "tool_launchers_deleteenvkeys",
+      "tool_launchers_ensuredir",
+      "tool_launchers_ensurejcodemodelprefix",
+      "tool_launchers_getdefaulttoolpaths",
+      "tool_launchers_getproviderbaseurl",
+      "tool_launchers_js",
+      "tool_launchers_prepareexternaltoollaunch",
+      "tool_launchers_printconfigartifacts",
+      "tool_launchers_readjson",
+      "tool_launchers_resolvelaunchcommand",
+      "tool_launchers_resolvelaunchermodelid",
+      "tool_launchers_restarthermesgateway",
+      "tool_launchers_spawncommand",
+      "tool_launchers_startexternaltool",
+      "tool_launchers_writeaiderconfig",
+      "tool_launchers_writeampconfig",
+      "tool_launchers_writeclineconfig",
+      "tool_launchers_writecontinueconfig",
+      "tool_launchers_writecrushconfig",
+      "tool_launchers_writegooseconfig",
+      "tool_launchers_writehermesconfig",
+      "tool_launchers_writejson",
+      "tool_launchers_writeopenhandsenv",
+      "tool_launchers_writepiconfig",
+      "tool_launchers_writeqwenconfig",
+      "tool_launchers_writerovoconfig"
+    ],
+    "8": [
+      "config_getapikey",
+      "opencode_buildopenaicompatibleproviderconfig",
+      "opencode_config_js",
+      "opencode_config_loadopencodeconfig",
+      "opencode_config_restoreopencodebackup",
+      "opencode_config_saveopencodeconfig",
+      "opencode_createzaiproxy",
+      "opencode_getopencodeconfigpath",
+      "opencode_getopencodemodelid",
+      "opencode_istcpportavailable",
+      "opencode_js",
+      "opencode_resolveopencodetmuxport",
+      "opencode_setopencodemodeldata",
+      "opencode_spawnopencode",
+      "opencode_startopencode",
+      "opencode_startopencodedesktop",
+      "opencode_startopencodeweb",
+      "server_broadcastupdate",
+      "server_checkportinuse",
+      "server_findavailableport",
+      "server_getconfigpayload",
+      "server_getmodelspayload",
+      "server_handlerequest",
+      "server_inspectexistingwebserver",
+      "server_maskapikey",
+      "server_openbrowser",
+      "server_pingallmodels",
+      "server_servedistfile",
+      "server_servefile",
+      "server_startwebserver",
+      "web_server_js"
+    ],
+    "9": [
       "legacy_proxy_cleanup_cleanupaider",
       "legacy_proxy_cleanup_cleanupamp",
       "legacy_proxy_cleanup_cleanupcrush",
@@ -420,32 +536,7 @@
       "legacy_proxy_cleanup_writejsonfile",
       "legacy_proxy_cleanup_writesimpleyamlmap"
     ],
-    "8": [
-      "config_getapikey",
-      "openclaw_getopenclawconfigpath",
-      "openclaw_js",
-      "openclaw_loadopenclawconfig",
-      "openclaw_saveopenclawconfig",
-      "openclaw_spawnopenclawcli",
-      "openclaw_startopenclaw",
-      "opencode_buildopenaicompatibleproviderconfig",
-      "opencode_config_js",
-      "opencode_config_loadopencodeconfig",
-      "opencode_config_restoreopencodebackup",
-      "opencode_config_saveopencodeconfig",
-      "opencode_createzaiproxy",
-      "opencode_getopencodeconfigpath",
-      "opencode_getopencodemodelid",
-      "opencode_istcpportavailable",
-      "opencode_js",
-      "opencode_resolveopencodetmuxport",
-      "opencode_setopencodemodeldata",
-      "opencode_spawnopencode",
-      "opencode_startopencode",
-      "opencode_startopencodedesktop",
-      "opencode_startopencodeweb"
-    ],
-    "9": [
+    "10": [
       "ping_buildpingrequest",
       "ping_extractquotapercent",
       "ping_fetchproviderquotapercent",
@@ -460,6 +551,7 @@
       "quota_capabilities_js",
       "quota_capabilities_supportsusagepercent",
       "quota_capabilities_usageresetsdaily",
+      "src_quota_capabilities_js",
       "usage_reader_buildusagesnapshotkey",
       "usage_reader_clearusagecache",
       "usage_reader_issnapshotfresh",
@@ -470,7 +562,74 @@
       "usage_reader_usageformodelid",
       "usage_reader_usageforrow"
     ],
-    "10": [
+    "11": [
+      "test_argv",
+      "test_buildroutertestconfig",
+      "test_buildsettingsrenderer",
+      "test_closeroutertestserver",
+      "test_closeserver",
+      "test_createcleanupfixturedir",
+      "test_createtoolpaths",
+      "test_escaperegex",
+      "test_getfreeport",
+      "test_listenonrandomport",
+      "test_matchestextfilter",
+      "test_mockconfig",
+      "test_mockresult",
+      "test_postrouterchat",
+      "test_readnoderequestbody",
+      "test_renderatwidth",
+      "test_routerchatbody",
+      "test_test_js",
+      "test_withmockprovider",
+      "test_withroutertestserver",
+      "test_withsourceurls",
+      "test_withtimeout"
+    ],
+    "12": [
+      "kilo_buildopenaicompatibleproviderconfig",
+      "kilo_config_getkiloconfigpath",
+      "kilo_config_js",
+      "kilo_config_loadkiloconfig",
+      "kilo_config_savekiloconfig",
+      "kilo_getkilomodelid",
+      "kilo_js",
+      "kilo_spawnkilo",
+      "kilo_startkilo",
+      "tool_bootstrap_executablesuffixes",
+      "tool_bootstrap_gettoolbootstrapmeta",
+      "tool_bootstrap_gettoolinstallplan",
+      "tool_bootstrap_installtoolwithplan",
+      "tool_bootstrap_isrunnablefile",
+      "tool_bootstrap_istoolinstalled",
+      "tool_bootstrap_js",
+      "tool_bootstrap_pathentries",
+      "tool_bootstrap_resolvebinarypath",
+      "tool_bootstrap_resolvetoolbinarypath",
+      "tool_bootstrap_uniquestrings"
+    ],
+    "13": [
+      "detailpanel_builddetailchart",
+      "detailpanel_detailpanel",
+      "detailpanel_statrow",
+      "format_escapehtml",
+      "format_formatavg",
+      "format_formatctx",
+      "format_formatping",
+      "format_maskkey",
+      "format_pingclass",
+      "ranks_parseswe",
+      "ranks_sweclass",
+      "ranks_tierrank",
+      "ranks_verdictcls",
+      "ranks_verdictrank",
+      "verdictbadge_verdictbadge",
+      "web_src_components_atoms_verdictbadge_jsx",
+      "web_src_components_dashboard_detailpanel_jsx",
+      "web_src_utils_format_js",
+      "web_src_utils_ranks_js"
+    ],
+    "14": [
       "installed_models_manager_enhancemodelmetadata",
       "installed_models_manager_gettoolconfigpaths",
       "installed_models_manager_gettoolemoji",
@@ -490,22 +649,57 @@
       "installed_models_manager_scanalltoolconfigs",
       "installed_models_manager_softdeletemodel"
     ],
-    "11": [
-      "theme_buildstyle",
-      "theme_currentpalette",
-      "theme_cyclethemesetting",
-      "theme_detectactivetheme",
-      "theme_getproviderrgb",
-      "theme_getreadabletextrgb",
-      "theme_gettheme",
-      "theme_getthemestatuslabel",
-      "theme_gettierrgb",
-      "theme_js",
-      "theme_paintbg",
-      "theme_paintrgb",
-      "theme_themelabel"
+    "15": [
+      "openclaw_getopenclawconfigpath",
+      "openclaw_js",
+      "openclaw_loadopenclawconfig",
+      "openclaw_saveopenclawconfig",
+      "openclaw_spawnopenclawcli",
+      "openclaw_startopenclaw",
+      "shell_env_buildenvcontent",
+      "shell_env_buildrcsourceline",
+      "shell_env_detectshellinfo",
+      "shell_env_ensureshellrcsource",
+      "shell_env_getenvfilepath",
+      "shell_env_js",
+      "shell_env_promptshellenvmigration",
+      "shell_env_removeshellenv",
+      "shell_env_syncshellenv"
     ],
-    "12": [
+    "16": [
+      "src_sync_set_js",
+      "sync_set_buildheaders",
+      "sync_set_buildsynccandidates",
+      "sync_set_collectapikeys",
+      "sync_set_isopenrouterfreemodelid",
+      "sync_set_isrouteableprovider",
+      "sync_set_jsonrequest",
+      "sync_set_normalizemodelid",
+      "sync_set_parseswepercent",
+      "sync_set_probemodel",
+      "sync_set_resolveurl",
+      "sync_set_scorecandidate",
+      "sync_set_shouldskipmodel",
+      "sync_set_signaldaemonreload",
+      "sync_set_syncset"
+    ],
+    "17": [
+      "updater_checkforupdate",
+      "updater_checkforupdatedetailed",
+      "updater_detectglobalinstallpermission",
+      "updater_detectpackagemanager",
+      "updater_fetchlastreleasedate",
+      "updater_getinstallargs",
+      "updater_getmanualinstallcmd",
+      "updater_hassudocommand",
+      "updater_installupdatecommand",
+      "updater_ispermissionerror",
+      "updater_js",
+      "updater_promptupdatenotification",
+      "updater_relaunchcurrentprocess",
+      "updater_runupdate"
+    ],
+    "18": [
       "telemetry_buildtelemetryproperties",
       "telemetry_ensuretelemetryconfig",
       "telemetry_gettelemetrydistinctid",
@@ -519,7 +713,21 @@
       "telemetry_sendfeaturerequest",
       "telemetry_telemetrydebug"
     ],
-    "13": [
+    "19": [
+      "scripts_testfcm_runner_mjs",
+      "testfcm_runner_buildisolatedconfig",
+      "testfcm_runner_copyartifactifexists",
+      "testfcm_runner_findexecutableonpath",
+      "testfcm_runner_main",
+      "testfcm_runner_normalizeterminaltext",
+      "testfcm_runner_parsecliargs",
+      "testfcm_runner_printhelp",
+      "testfcm_runner_runinteractivetranscript",
+      "testfcm_runner_runjsonpreflight",
+      "testfcm_runner_truncateforreport",
+      "testfcm_runner_writeartifact"
+    ],
+    "20": [
       "testfcm_buildfixtasks",
       "testfcm_buildtestfcmreport",
       "testfcm_classifytooltranscript",
@@ -532,29 +740,7 @@
       "testfcm_picktestfcmselectionindex",
       "testfcm_resolvetestfcmtoolspec"
     ],
-    "14": [
-      "security_checkconfigsecurity",
-      "security_fixconfigpermissions",
-      "security_formatmode",
-      "security_formatmoderwx",
-      "security_getconfigpath",
-      "security_getconfigpermissions",
-      "security_isconfigsecure",
-      "security_js",
-      "security_promptsecurityfix"
-    ],
-    "15": [
-      "kilo_buildopenaicompatibleproviderconfig",
-      "kilo_config_getkiloconfigpath",
-      "kilo_config_js",
-      "kilo_config_loadkiloconfig",
-      "kilo_config_savekiloconfig",
-      "kilo_getkilomodelid",
-      "kilo_js",
-      "kilo_spawnkilo",
-      "kilo_startkilo"
-    ],
-    "16": [
+    "21": [
       "provider_quota_fetchers_createproviderquotafetcher",
       "provider_quota_fetchers_fetchopenrouterraw",
       "provider_quota_fetchers_fetchproviderquota",
@@ -565,7 +751,27 @@
       "provider_quota_fetchers_parseopenrouterresponse",
       "provider_quota_fetchers_parsesiliconflowresponse"
     ],
-    "17": [
+    "22": [
+      "cache_clearcache",
+      "cache_getcacheage",
+      "cache_getcachepath",
+      "cache_iscachefresh",
+      "cache_js",
+      "cache_loadcache",
+      "cache_savecache",
+      "src_cache_js"
+    ],
+    "23": [
+      "app_app",
+      "usefilter_usefilter",
+      "usesse_usesse",
+      "usetheme_usetheme",
+      "web_src_app_jsx",
+      "web_src_hooks_usefilter_js",
+      "web_src_hooks_usesse_js",
+      "web_src_hooks_usetheme_js"
+    ],
+    "24": [
       "command_palette_buildcommandpaletteentries",
       "command_palette_buildcommandpalettetree",
       "command_palette_filtercommandpaletteentries",
@@ -573,70 +779,239 @@
       "command_palette_fuzzymatchcommand",
       "command_palette_js"
     ],
-    "18": [
+    "25": [
+      "cli_help_buildclihelplines",
+      "cli_help_buildclihelptext",
+      "cli_help_formatentry",
+      "cli_help_js",
+      "cli_help_paint",
+      "src_cli_help_js"
+    ],
+    "26": [
+      "test_tui_hotkeys_test_js",
+      "tui_hotkeys_test_makeresult",
+      "tui_hotkeys_test_nextmode",
+      "tui_hotkeys_test_noteuseractivity",
+      "tui_hotkeys_test_refreshautopingmode",
+      "tui_hotkeys_test_setpingmode"
+    ],
+    "27": [
       "model_merger_buildmergedmodels",
       "model_merger_js",
       "model_merger_parsectxk",
       "model_merger_parseswepercent",
       "model_merger_slugify"
     ],
-    "19": [
+    "28": [
       "changelog_loader_formatchangelogfordisplay",
       "changelog_loader_getlatestchanges",
       "changelog_loader_js",
       "changelog_loader_loadchangelog"
     ],
-    "20": [
+    "29": [
+      "patch_openclaw_getmodelconfig",
+      "patch_openclaw_js",
+      "patch_openclaw_models_js",
+      "patch_openclaw_models_patchopenclawmodelsjson"
+    ],
+    "30": [
+      "provider_quota_fetchers_test_fetch1",
+      "provider_quota_fetchers_test_fetch2",
+      "provider_quota_fetchers_test_mockfetch",
+      "test_provider_quota_fetchers_test_js"
+    ],
+    "31": [
       "constants_js",
       "constants_mscell",
       "constants_spincell"
     ],
-    "21": [
+    "32": [
+      "test_usage_reader_test_js",
+      "usage_reader_test_freshts",
+      "usage_reader_test_maketempdir"
+    ],
+    "33": [
+      "dev_web_checkport",
+      "dev_web_main",
+      "scripts_dev_web_mjs"
+    ],
+    "34": [
+      "profile_keys_merge_test_testprofilekeysmerge",
+      "test_profile_keys_merge_test_js"
+    ],
+    "35": [
+      "download_downloadfile",
+      "web_src_utils_download_js"
+    ],
+    "36": [
+      "settingsview_settingsview",
+      "web_src_components_settings_settingsview_jsx"
+    ],
+    "37": [
+      "sparkline_sparkline",
+      "web_src_components_atoms_sparkline_jsx"
+    ],
+    "38": [
+      "toast_toast",
+      "web_src_components_atoms_toast_jsx"
+    ],
+    "39": [
+      "tierbadge_tierbadge",
+      "web_src_components_atoms_tierbadge_jsx"
+    ],
+    "40": [
+      "toastcontainer_toastcontainer",
+      "web_src_components_atoms_toastcontainer_jsx"
+    ],
+    "41": [
+      "statusdot_statusdot",
+      "web_src_components_atoms_statusdot_jsx"
+    ],
+    "42": [
+      "stabilitycell_stabilitycell",
+      "web_src_components_atoms_stabilitycell_jsx"
+    ],
+    "43": [
+      "header_header",
+      "web_src_components_layout_header_jsx"
+    ],
+    "44": [
+      "footer_footer",
+      "web_src_components_layout_footer_jsx"
+    ],
+    "45": [
+      "sidebar_sidebar",
+      "web_src_components_layout_sidebar_jsx"
+    ],
+    "46": [
+      "modeltable_modeltable",
+      "web_src_components_dashboard_modeltable_jsx"
+    ],
+    "47": [
+      "exportmodal_exportmodal",
+      "web_src_components_dashboard_exportmodal_jsx"
+    ],
+    "48": [
+      "statsbar_statsbar",
+      "web_src_components_dashboard_statsbar_jsx"
+    ],
+    "49": [
+      "filterbar_filterbar",
+      "web_src_components_dashboard_filterbar_jsx"
+    ],
+    "50": [
+      "analyticsview_analyticsview",
+      "web_src_components_analytics_analyticsview_jsx"
+    ],
+    "51": [
       "tier_colors_js"
     ],
-    "22": [
+    "52": [
       "provider_metadata_js"
     ],
-    "23": [
+    "53": [
       "product_flags_js"
+    ],
+    "54": [
+      "vite_config_js"
+    ],
+    "55": [
+      "test_config_test_js"
+    ],
+    "56": [
+      "test_model_merger_test_js"
+    ],
+    "57": [
+      "web_src_main_jsx"
+    ],
+    "58": [
+      "src_provider_metadata_js"
+    ],
+    "59": [
+      "smart_model_router_prd"
+    ],
+    "60": [
+      "tui_footer"
     ]
   },
   "cohesion": {
-    "0": 0.06,
-    "1": 0.08,
-    "2": 0.06,
-    "3": 0.11,
-    "4": 0.12,
-    "5": 0.08,
-    "6": 0.16,
-    "7": 0.22,
-    "8": 0.18,
-    "9": 0.15,
-    "10": 0.19,
-    "11": 0.23,
-    "12": 0.33,
-    "13": 0.22,
-    "14": 0.47,
-    "15": 0.36,
-    "16": 0.36,
-    "17": 0.53,
-    "18": 0.6,
-    "19": 0.83,
-    "20": 0.67,
-    "21": 1.0,
-    "22": 1.0,
-    "23": 1.0
+    "0": 0.07,
+    "1": 0.07,
+    "2": 0.04,
+    "3": 0.06,
+    "4": 0.14,
+    "5": 0.16,
+    "6": 0.1,
+    "7": 0.23,
+    "8": 0.14,
+    "9": 0.22,
+    "10": 0.15,
+    "11": 0.12,
+    "12": 0.17,
+    "13": 0.14,
+    "14": 0.19,
+    "15": 0.25,
+    "16": 0.25,
+    "17": 0.26,
+    "18": 0.33,
+    "19": 0.32,
+    "20": 0.22,
+    "21": 0.36,
+    "22": 0.57,
+    "23": 0.25,
+    "24": 0.53,
+    "25": 0.8,
+    "26": 0.47,
+    "27": 0.6,
+    "28": 0.83,
+    "29": 0.5,
+    "30": 0.5,
+    "31": 0.67,
+    "32": 0.67,
+    "33": 1.0,
+    "34": 1.0,
+    "35": 1.0,
+    "36": 1.0,
+    "37": 1.0,
+    "38": 1.0,
+    "39": 1.0,
+    "40": 1.0,
+    "41": 1.0,
+    "42": 1.0,
+    "43": 1.0,
+    "44": 1.0,
+    "45": 1.0,
+    "46": 1.0,
+    "47": 1.0,
+    "48": 1.0,
+    "49": 1.0,
+    "50": 1.0,
+    "51": 1.0,
+    "52": 1.0,
+    "53": 1.0,
+    "54": 1.0,
+    "55": 1.0,
+    "56": 1.0,
+    "57": 1.0,
+    "58": 1.0,
+    "59": 1.0,
+    "60": 1.0
   },
   "gods": [
     {
+      "id": "router_dashboard_js",
+      "label": "router-dashboard.js",
+      "degree": 52
+    },
+    {
       "id": "router_daemon_routerruntime",
       "label": "RouterRuntime",
-      "degree": 38
+      "degree": 39
     },
     {
       "id": "app_runapp",
       "label": "runApp()",
-      "degree": 29
+      "degree": 32
     },
     {
       "id": "endpoint_installer_installproviderendpoints",
@@ -644,14 +1019,19 @@
       "degree": 23
     },
     {
+      "id": "free_coding_models_project",
+      "label": "free-coding-models CLI",
+      "degree": 23
+    },
+    {
       "id": "tool_launchers_prepareexternaltoollaunch",
       "label": "prepareExternalToolLaunch()",
-      "degree": 20
+      "degree": 21
     },
     {
       "id": "config_saveconfig",
       "label": "saveConfig()",
-      "degree": 19
+      "degree": 21
     },
     {
       "id": "render_table_rendertable",
@@ -664,98 +1044,88 @@
       "degree": 17
     },
     {
-      "id": "router_dashboard_renderrouterdashboard",
-      "label": "renderRouterDashboard()",
-      "degree": 16
-    },
-    {
-      "id": "config_isplainobject",
-      "label": "isPlainObject()",
-      "degree": 15
-    },
-    {
       "id": "config_normalizerouterconfig",
       "label": "normalizeRouterConfig()",
-      "degree": 14
+      "degree": 17
     }
   ],
   "surprises": [
     {
-      "source": "renderTable()",
-      "target": "calculateViewport()",
+      "source": "Parallel Pings",
+      "target": "Health Probe Engine",
       "source_files": [
-        "/Users/vava/Documents/GitHub/free-coding-models/src/render-table.js",
-        "/Users/vava/Documents/GitHub/free-coding-models/src/render-helpers.js"
+        "README.md",
+        "tasks/PRD-smart-model-router.md"
       ],
       "confidence": "INFERRED",
-      "relation": "calls",
-      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `calculateViewport()` unexpectedly reaches hub `renderTable()`"
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
     },
     {
-      "source": "renderTable()",
-      "target": "getTheme()",
+      "source": "Smart Recommend",
+      "target": "Stability Score",
       "source_files": [
-        "/Users/vava/Documents/GitHub/free-coding-models/src/render-table.js",
-        "/Users/vava/Documents/GitHub/free-coding-models/src/theme.js"
+        "README.md",
+        "docs/stability.md"
       ],
       "confidence": "INFERRED",
-      "relation": "calls",
-      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `getTheme()` unexpectedly reaches hub `renderTable()`"
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
     },
     {
-      "source": "runApp()",
-      "target": "detectActiveTheme()",
+      "source": "Command Palette",
+      "target": "Install Endpoints (Y key)",
       "source_files": [
-        "/Users/vava/Documents/GitHub/free-coding-models/src/app.js",
-        "/Users/vava/Documents/GitHub/free-coding-models/src/theme.js"
+        "task/COMMAND_PALETTE.md",
+        "docs/integrations.md"
       ],
       "confidence": "INFERRED",
-      "relation": "calls",
-      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `detectActiveTheme()` unexpectedly reaches hub `runApp()`"
-    },
-    {
-      "source": "runApp()",
-      "target": "fetchOpenRouterFreeModels()",
-      "source_files": [
-        "/Users/vava/Documents/GitHub/free-coding-models/src/app.js",
-        "/Users/vava/Documents/GitHub/free-coding-models/src/analysis.js"
-      ],
-      "confidence": "INFERRED",
-      "relation": "calls",
-      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `fetchOpenRouterFreeModels()` unexpectedly reaches hub `runApp()`"
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; peripheral node `Install Endpoints (Y key)` unexpectedly reaches hub `Command Palette`"
     },
     {
       "source": "runApp()",
-      "target": "formatResultsAsJSON()",
+      "target": "fetchLastReleaseDate()",
       "source_files": [
         "/Users/vava/Documents/GitHub/free-coding-models/src/app.js",
-        "/Users/vava/Documents/GitHub/free-coding-models/src/utils.js"
+        "/Users/vava/Documents/GitHub/free-coding-models/src/updater.js"
       ],
       "confidence": "INFERRED",
       "relation": "calls",
-      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `formatResultsAsJSON()` unexpectedly reaches hub `runApp()`"
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `fetchLastReleaseDate()` unexpectedly reaches hub `runApp()`"
+    },
+    {
+      "source": "runApp()",
+      "target": "promptUpdateNotification()",
+      "source_files": [
+        "/Users/vava/Documents/GitHub/free-coding-models/src/app.js",
+        "/Users/vava/Documents/GitHub/free-coding-models/src/updater.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `promptUpdateNotification()` unexpectedly reaches hub `runApp()`"
     }
   ],
   "questions": [
     {
       "type": "bridge_node",
-      "question": "Why does `runApp()` connect `Community 2` to `Community 0`, `Community 3`, `Community 5`, `Community 6`, `Community 11`, `Community 14`?",
-      "why": "High betweenness centrality (0.225) - this node is a cross-community bridge."
+      "question": "Why does `runApp()` connect `Community 3` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 5`, `Community 6`, `Community 15`, `Community 17`, `Community 22`?",
+      "why": "High betweenness centrality (0.270) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `getApiKey()` connect `Community 8` to `Community 0`, `Community 3`, `Community 4`, `Community 6`, `Community 15`?",
-      "why": "High betweenness centrality (0.135) - this node is a cross-community bridge."
+      "question": "Why does `getApiKey()` connect `Community 8` to `Community 0`, `Community 4`, `Community 5`, `Community 7`, `Community 12`, `Community 15`, `Community 16`?",
+      "why": "High betweenness centrality (0.093) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `renderTable()` connect `Community 5` to `Community 0`, `Community 1`, `Community 2`, `Community 11`?",
-      "why": "High betweenness centrality (0.127) - this node is a cross-community bridge."
+      "question": "Why does `Command Palette` connect `Community 2` to `Community 3`?",
+      "why": "High betweenness centrality (0.084) - this node is a cross-community bridge."
     },
     {
       "type": "verify_inferred",
-      "question": "Are the 28 inferred relationships involving `runApp()` (e.g. with `detectActiveTheme()` and `checkConfigSecurity()`) actually correct?",
-      "why": "`runApp()` has 28 INFERRED edges - model-reasoned connections that need verification."
+      "question": "Are the 30 inferred relationships involving `runApp()` (e.g. with `checkConfigSecurity()` and `checkForUpdate()`) actually correct?",
+      "why": "`runApp()` has 30 INFERRED edges - model-reasoned connections that need verification."
     },
     {
       "type": "verify_inferred",
@@ -763,14 +1133,14 @@
       "why": "`installProviderEndpoints()` has 3 INFERRED edges - model-reasoned connections that need verification."
     },
     {
-      "type": "verify_inferred",
-      "question": "Are the 11 inferred relationships involving `saveConfig()` (e.g. with `getTelemetryDistinctId()` and `.saveRouterConfig()`) actually correct?",
-      "why": "`saveConfig()` has 11 INFERRED edges - model-reasoned connections that need verification."
+      "type": "isolated_nodes",
+      "question": "What connects `PRD \u2014 Smart Model Router`, `Token Usage Screen`, `src/render-table.js (Table Rendering)` to the rest of the system?",
+      "why": "28 weakly-connected nodes found - possible documentation gaps or missing edges."
     },
     {
       "type": "low_cohesion",
       "question": "Should `Community 0` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.06 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.07 - nodes in this community are weakly interconnected."
     }
   ]
 }
