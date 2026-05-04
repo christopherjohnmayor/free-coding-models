@@ -78,6 +78,14 @@ async function main() {
     process.exit(result.ok ? 0 : 1);
   }
 
+  // 📖 --sync-set [name] — auto-discover, probe, and populate a router set
+  if (cliArgs.syncSetMode) {
+    const { syncSet } = await import('../src/sync-set.js');
+    const result = await syncSet({ name: cliArgs.syncSetName || 'auto' });
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(result.ok ? 0 : 1);
+  }
+
   // Validate --tier early, before entering alternate screen
   if (cliArgs.tierFilter && !TIER_LETTER_MAP[cliArgs.tierFilter]) {
     console.error(chalk.red(`  Unknown tier "${cliArgs.tierFilter}". Valid tiers: S, A, B, C`));

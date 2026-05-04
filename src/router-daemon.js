@@ -242,14 +242,19 @@ function attachClientAbort(req, res, controller) {
   }
 }
 
-function cloneHeadersForUpstream(reqHeaders, apiKey, providerKey) {
+export function cloneHeadersForUpstream(reqHeaders, apiKey, providerKey) {
   const headers = {}
   for (const [key, value] of Object.entries(reqHeaders || {})) {
     const lower = key.toLowerCase()
     if (['host', 'connection', 'content-length', 'authorization'].includes(lower)) continue
-    if (typeof value === 'string') headers[key] = value
+    if (typeof value !== 'string') continue
+    if (lower === 'content-type') {
+      headers['Content-Type'] = value
+      continue
+    }
+    headers[key] = value
   }
-  headers['Content-Type'] = headers['Content-Type'] || headers['content-type'] || 'application/json'
+  headers['Content-Type'] = headers['Content-Type'] || 'application/json'
   headers.Authorization = `Bearer ${apiKey}`
   if (providerKey === 'openrouter') {
     headers['HTTP-Referer'] = 'https://github.com/vava-nessa/free-coding-models'
@@ -1042,7 +1047,27 @@ class RouterRuntime {
     if (candidates.length === 0) {
       const health = this.getModelHealth(set)
       const quotaExhausted = [...this.quotaExhausted].filter((key) => set.models.some((model) => modelKey(model.provider, model.model) === key))
-      sendError(res, 503, `All models in set are unavailable: ${set.name}`, 'service_unavailable', 'all_models_unavailable', requestId, {
+      
+      let statusCode = 503
+      let errorCode = 'all_models_unavailable'
+      let errorType = 'service_unavailable'
+      if (health.length > 0) {
+        if (health.every((h) => h.state === 'AUTH_ERROR')) {
+          statusCode = 401
+          errorCode = 'invalid_api_key'
+          errorType = 'invalid_request_error'
+        } else if (health.every((h) => h.state === 'AUTH_ERROR' || quotaExhausted.includes(h.key))) {
+          statusCode = 429
+          errorCode = 'insufficient_quota'
+          errorType = 'insufficient_quota'
+        } else if (health.every((h) => h.state === 'STALE' || h.state === 'UNSUPPORTED')) {
+          statusCode = 400
+          errorCode = 'invalid_model'
+          errorType = 'invalid_request_error'
+        }
+      }
+
+      sendError(res, statusCode, `All models in set are unavailable: ${set.name}`, errorType, errorCode, requestId, {
         set: set.name,
         models_tried: [],
         quota_exhausted: quotaExhausted,
@@ -1094,7 +1119,33 @@ class RouterRuntime {
       }
 
       const quotaExhausted = [...this.quotaExhausted].filter((key) => tried.includes(key))
-      sendError(res, 503, `All routed models failed for set: ${set.name}`, 'service_unavailable', 'all_models_failed', requestId, {
+      const allAuthError = tried.every((key) => {
+        const [provider] = key.split('/')
+        return blockedProviders.has(provider)
+      })
+      const allQuotaError = tried.length > 0 && quotaExhausted.length === tried.length
+      const allAuthOrQuota = tried.every((key) => {
+        const [provider] = key.split('/')
+        return blockedProviders.has(provider) || quotaExhausted.includes(key)
+      })
+
+      let statusCode = 503
+      let errorCode = 'all_models_failed'
+      let errorType = 'service_unavailable'
+
+      if (tried.length > 0) {
+        if (allAuthError) {
+          statusCode = 401
+          errorCode = 'invalid_api_key'
+          errorType = 'invalid_request_error'
+        } else if (allQuotaError || allAuthOrQuota) {
+          statusCode = 429
+          errorCode = 'insufficient_quota'
+          errorType = 'insufficient_quota'
+        }
+      }
+
+      sendError(res, statusCode, `All routed models failed for set: ${set.name}`, errorType, errorCode, requestId, {
         set: set.name,
         models_tried: tried,
         quota_exhausted: quotaExhausted,
@@ -1123,6 +1174,11 @@ class RouterRuntime {
       model: getApiModelId(candidate.provider, candidate.model),
       stream: false,
     }
+    // 📖 Some providers/models fail if we send custom internal params, so strip them
+    if (upstreamBody.add_generation_prompt !== undefined) delete upstreamBody.add_generation_prompt
+    if (upstreamBody.continue_final_message !== undefined) delete upstreamBody.continue_final_message
+    if (upstreamBody.tools?.length === 0) delete upstreamBody.tools
+    
     const clientAbort = attachClientAbort(req, res, controller)
     try {
       const response = await fetch(providerUrl, {
@@ -1134,6 +1190,7 @@ class RouterRuntime {
         body: JSON.stringify(upstreamBody),
         signal: controller.signal,
       })
+      clearTimeout(timeout)
       const latencyMs = Math.round(performance.now() - started)
       const text = await response.text()
       const upstreamMeta = buildUpstreamMeta(response, text)
@@ -1200,6 +1257,15 @@ class RouterRuntime {
         return { done: false, failoverToNext: true, reason: `http_${response.status}` }
       }
 
+      // 📖 Provide failover fallback for non-retryable errors from the provider (like 400 Bad Request) 
+      // when they are caused by format idiosyncrasies (e.g. empty tools array that another model might accept)
+      if (response.status >= 400 && response.status < 500) {
+        this.recordRouterError(`http_${response.status}`, requestId, { model: key, status: response.status, body: text })
+        this.markFailure(key, `HTTP ${response.status}`)
+        this.addRequestLog({ request_id: requestId, model: key, status: response.status, latency_ms: latencyMs, tokens: 0, failover: attemptIndex > 0, error: `http_${response.status}` })
+        return { done: false, failoverToNext: true, reason: `http_${response.status}` }
+      }
+
       if (!res.writableEnded) {
         res.writeHead(response.status, {
           ...headerEntries(response.headers),
@@ -1242,6 +1308,11 @@ class RouterRuntime {
       model: getApiModelId(candidate.provider, candidate.model),
       stream: true,
     }
+    // 📖 Some providers/models fail if we send custom internal params, so strip them
+    if (upstreamBody.add_generation_prompt !== undefined) delete upstreamBody.add_generation_prompt
+    if (upstreamBody.continue_final_message !== undefined) delete upstreamBody.continue_final_message
+    if (upstreamBody.tools?.length === 0) delete upstreamBody.tools
+    
     const timeout = setTimeout(() => controller.abort(), this.routerConfig().failover.requestTimeoutMs)
     let sentToClient = false
     const clientAbort = attachClientAbort(req, res, controller)
@@ -1255,6 +1326,7 @@ class RouterRuntime {
         body: JSON.stringify(upstreamBody),
         signal: controller.signal,
       })
+      clearTimeout(timeout)
       const latencyMs = Math.round(performance.now() - started)
       const upstreamMeta = buildUpstreamMeta(response)
       if (isLikelyHtmlResponse(response.headers)) {
@@ -1274,6 +1346,17 @@ class RouterRuntime {
           this.addRequestLog({ request_id: requestId, model: key, status: response.status, latency_ms: latencyMs, tokens: 0, failover: attemptIndex > 0, error: `http_${response.status}`, stream: true })
           return { done: false, failoverToNext: true, reason: `http_${response.status}` }
         }
+        
+        // 📖 Provide failover fallback for non-retryable errors from the provider (like 400 Bad Request) 
+        // when they are caused by format idiosyncrasies (e.g. empty tools array that another model might accept)
+        if (response.status >= 400 && response.status < 500) {
+          const rawErr = await response.text()
+          this.recordRouterError(`http_${response.status}`, requestId, { model: key, status: response.status, body: rawErr, stream: true })
+          this.markFailure(key, `HTTP ${response.status}`)
+          this.addRequestLog({ request_id: requestId, model: key, status: response.status, latency_ms: latencyMs, tokens: 0, failover: attemptIndex > 0, error: `http_${response.status}`, stream: true })
+          return { done: false, failoverToNext: true, reason: `http_${response.status}` }
+        }
+
         if (!res.writableEnded) {
           res.writeHead(response.status, {
             ...headerEntries(response.headers),
@@ -1342,7 +1425,11 @@ class RouterRuntime {
       }
       const reason = error.name === 'AbortError' ? 'timeout' : (error.message || String(error))
       this.markFailure(key, reason)
-      this.recordRouterError('upstream_stream_error', requestId, { model: key, reason, partial: sentToClient })
+      if (reason !== 'timeout') {
+        this.recordRouterError('upstream_stream_error', requestId, { model: key, reason, partial: sentToClient })
+      } else {
+        this.recordRouterError('timeout', requestId, { model: key, reason, partial: sentToClient })
+      }
       this.addRequestLog({ request_id: requestId, model: key, status: 'ERR', latency_ms: null, tokens: 0, failover: attemptIndex > 0, error: reason, stream: true })
       if (sentToClient) {
         this.logger.warn(`Streaming failure after partial response from ${key}`, { request_id: requestId, reason })

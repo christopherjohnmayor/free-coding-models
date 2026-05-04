@@ -41,6 +41,7 @@ const CONFIG_FLAGS = [
   { flag: '--daemon-bg', description: 'Start the FCM Router daemon in the background' },
   { flag: '--daemon-status', description: 'Print FCM Router daemon status JSON' },
   { flag: '--daemon-stop', description: 'Gracefully stop the FCM Router daemon' },
+  { flag: '--sync-set [name]', description: 'Auto-discover and live-probe models into a router set' },
   { flag: '--no-telemetry', description: 'Disable anonymous telemetry for this run' },
   { flag: '--help, -h', description: 'Print this help and exit' },
 ]
@@ -50,6 +51,8 @@ const EXAMPLES = [
   'free-coding-models --web',
   'free-coding-models --daemon-bg',
   'free-coding-models --daemon-status',
+  'free-coding-models --sync-set',
+  'free-coding-models --sync-set my-coding-set',
   'free-coding-models --openclaw --tier S',
   "free-coding-models --json | jq '.[0]'",
 ]

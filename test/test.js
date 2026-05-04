@@ -47,13 +47,14 @@ import {
   normalizeRouterConfig,
   DEFAULT_ROUTER_SETTINGS
 } from '../src/config.js'
-import { buildDefaultRouterSet, createRouterRuntimeForTest, formatOpenAiError } from '../src/router-daemon.js'
+import { buildDefaultRouterSet, cloneHeadersForUpstream, createRouterRuntimeForTest, formatOpenAiError } from '../src/router-daemon.js'
 import { formatRouterDuration, normalizeRouterDashboardSnapshot, parseRouterDashboardSseFrame } from '../src/router-dashboard.js'
 import { buildProviderModelTokenKey, loadTokenUsageByProviderModel, formatTokenTotalCompact } from '../src/token-usage-reader.js'
 import { renderTable } from '../src/render-table.js'
 import { createOverlayRenderers } from '../src/overlays.js'
 import { buildProviderModelsUrl, parseProviderModelIds, listProviderTestModels, classifyProviderTestOutcome, buildProviderTestDetail } from '../src/key-handler.js'
 import { buildCliHelpText } from '../src/cli-help.js'
+import { buildSyncCandidates } from '../src/sync-set.js'
 import { detectPackageManager, getInstallArgs, getManualInstallCmd } from '../src/updater.js'
 import {
   buildToolEnv,
@@ -2393,6 +2394,15 @@ describe('router config helpers', () => {
 })
 
 describe('router daemon integration hardening', () => {
+  it('canonicalizes content-type before proxying upstream requests', () => {
+    const actual = cloneHeadersForUpstream({ 'content-type': 'application/json', accept: 'application/json' }, 'router-test-key', 'groq')
+
+    assert.equal(actual['Content-Type'], 'application/json')
+    assert.equal(actual['content-type'], undefined)
+    assert.equal(actual.Authorization, 'Bearer router-test-key')
+    assert.equal(actual.accept, 'application/json')
+  })
+
   it('routes non-streaming chat completions through the highest-priority healthy model', async () => {
     await withMockProvider(() => ({
       body: {
@@ -2537,8 +2547,8 @@ describe('router daemon integration hardening', () => {
           const response = await postRouterChat(baseUrl)
           const payload = await response.json()
 
-          assert.equal(response.status, 503)
-          assert.equal(payload.error.code, 'all_models_failed')
+          assert.equal(response.status, 429)
+          assert.equal(payload.error.code, 'insufficient_quota')
           assert.deepEqual(payload.error.quota_exhausted, [`groq/${ROUTER_TEST_MODELS.groqFast}`])
           assert.equal(payload.error.quota_exhausted_details[0].retry_after_ms, 7000)
           assert.equal(payload.error.quota_exhausted_details[0].rate_limit_headers['x-ratelimit-remaining'], '0')
@@ -4229,5 +4239,126 @@ describe('web server startup', () => {
     } finally {
       await closeServer(server)
     }
+  })
+})
+
+// ─── Sync Set Tests ──────────────────────────────────────────────────────────
+
+describe('sync-set', () => {
+  describe('parseArgs --sync-set', () => {
+    const argv = (...a) => ['node', 'fcm', ...a]
+
+    it('parses --sync-set without name', () => {
+      const result = parseArgs(argv('--sync-set'))
+      assert.equal(result.syncSetMode, true)
+      assert.equal(result.syncSetName, null)
+    })
+
+    it('parses --sync-set with a name', () => {
+      const result = parseArgs(argv('--sync-set', 'my-coding-set'))
+      assert.equal(result.syncSetMode, true)
+      assert.equal(result.syncSetName, 'my-coding-set')
+    })
+
+    it('does not consume --sync-set name as apiKey', () => {
+      const result = parseArgs(argv('--sync-set', 'my-set'))
+      assert.equal(result.apiKey, null)
+      assert.equal(result.syncSetName, 'my-set')
+    })
+
+    it('defaults syncSetMode to false', () => {
+      const result = parseArgs(argv())
+      assert.equal(result.syncSetMode, false)
+      assert.equal(result.syncSetName, null)
+    })
+
+    it('handles --sync-set combined with other flags', () => {
+      const result = parseArgs(argv('--sync-set', 'prod', '--no-telemetry'))
+      assert.equal(result.syncSetMode, true)
+      assert.equal(result.syncSetName, 'prod')
+      assert.equal(result.noTelemetry, true)
+    })
+
+    it('treats --sync-set followed by a flag as having no name', () => {
+      const result = parseArgs(argv('--sync-set', '--json'))
+      assert.equal(result.syncSetMode, true)
+      assert.equal(result.syncSetName, null)
+      assert.equal(result.jsonMode, true)
+    })
+  })
+
+  describe('buildSyncCandidates', () => {
+    it('returns empty when no keys match providers', () => {
+      const candidates = buildSyncCandidates({ nonexistent_provider: 'key-123' })
+      assert.equal(candidates.length, 0)
+    })
+
+    it('returns candidates sorted by score descending for nvidia', () => {
+      const candidates = buildSyncCandidates({ nvidia: 'test-key' })
+      assert.ok(candidates.length > 0)
+      assert.equal(candidates[0].provider, 'nvidia')
+      // 📖 All candidates should have nvidia provider since only nvidia key is given
+      for (const c of candidates) {
+        assert.equal(c.provider, 'nvidia')
+      }
+      // 📖 Scores should be non-increasing (sorted descending)
+      for (let i = 1; i < candidates.length; i++) {
+        assert.ok(candidates[i].score <= candidates[i - 1].score,
+          `candidate ${i} (${candidates[i].model}: ${candidates[i].score}) should be <= candidate ${i-1} (${candidates[i-1].model}: ${candidates[i-1].score})`)
+      }
+    })
+
+    it('filters out googleai models', () => {
+      const candidates = buildSyncCandidates({ nvidia: 'key', googleai: 'key' })
+      const googleai = candidates.filter(c => c.provider === 'googleai')
+      assert.equal(googleai.length, 0)
+    })
+
+    it('respects exclude option', () => {
+      const allCandidates = buildSyncCandidates({ nvidia: 'key' })
+      if (allCandidates.length === 0) return // skip if no nvidia models
+      const firstModel = `${allCandidates[0].provider}/${allCandidates[0].model}`
+      const filtered = buildSyncCandidates({ nvidia: 'key' }, { exclude: new Set([firstModel]) })
+      const found = filtered.find(c => `${c.provider}/${c.model}` === firstModel)
+      assert.equal(found, undefined)
+    })
+
+    it('respects preferOrder option', () => {
+      const allCandidates = buildSyncCandidates({ nvidia: 'key' })
+      if (allCandidates.length < 2) return
+      const lastModel = allCandidates[allCandidates.length - 1]
+      const preferKey = `${lastModel.provider}/${lastModel.model}`
+      const reordered = buildSyncCandidates({ nvidia: 'key' }, { preferOrder: [preferKey] })
+      assert.equal(`${reordered[0].provider}/${reordered[0].model}`, preferKey)
+    })
+
+    it('only includes free openrouter models by default', () => {
+      const candidates = buildSyncCandidates({ openrouter: 'key' })
+      for (const c of candidates) {
+        if (c.provider === 'openrouter') {
+          assert.ok(c.model.endsWith(':free'),
+            `OpenRouter model ${c.model} should end with :free`)
+        }
+      }
+    })
+
+    it('includes candidate fields', () => {
+      const candidates = buildSyncCandidates({ nvidia: 'key' })
+      if (candidates.length === 0) return
+      const first = candidates[0]
+      assert.ok(typeof first.provider === 'string')
+      assert.ok(typeof first.model === 'string')
+      assert.ok(typeof first.tier === 'string')
+      assert.ok(typeof first.score === 'number')
+      assert.ok(typeof first.swePercent === 'number')
+      assert.ok(typeof first.url === 'string')
+    })
+  })
+
+  describe('cli-help includes --sync-set', () => {
+    it('includes --sync-set in help text', () => {
+      const help = buildCliHelpText()
+      assert.ok(help.includes('--sync-set'), 'Help text should mention --sync-set')
+    })
   })
 })

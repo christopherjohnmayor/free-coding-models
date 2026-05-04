@@ -426,12 +426,19 @@ export function parseArgs(argv) {
     ? pingIntervalIdx + 1
     : -1
 
+  // 📖 --sync-set [name] — auto-discover and live-probe models into a named router set
+  const syncSetIdx = args.findIndex(a => a.toLowerCase() === '--sync-set')
+  const syncSetValueIdx = (syncSetIdx !== -1 && args[syncSetIdx + 1] && !args[syncSetIdx + 1].startsWith('--'))
+    ? syncSetIdx + 1
+    : -1
+
   // 📖 Set of arg indices that are values for flags (not API keys)
   const skipIndices = new Set()
   if (tierValueIdx !== -1) skipIndices.add(tierValueIdx)
   if (sortValueIdx !== -1) skipIndices.add(sortValueIdx)
   if (originValueIdx !== -1) skipIndices.add(originValueIdx)
   if (pingIntervalValueIdx !== -1) skipIndices.add(pingIntervalValueIdx)
+  if (syncSetValueIdx !== -1) skipIndices.add(syncSetValueIdx)
 
   for (const [i, arg] of args.entries()) {
     if (arg.startsWith('--') || arg === '-h') {
@@ -473,6 +480,10 @@ export function parseArgs(argv) {
   const daemonBackgroundMode = flags.includes('--daemon-bg')
   const daemonStopMode = flags.includes('--daemon-stop')
   const daemonStatusMode = flags.includes('--daemon-status')
+
+  // 📖 --sync-set [name] — auto-discover and populate a router set with best available models
+  const syncSetMode = flags.includes('--sync-set')
+  const syncSetName = syncSetValueIdx !== -1 ? args[syncSetValueIdx] : null
 
   // 📖 --web / --gui / web subcommand — launch the web dashboard instead of the TUI
   const webMode = flags.includes('--web') || flags.includes('--gui') || args[0] === 'web'
@@ -536,6 +547,8 @@ export function parseArgs(argv) {
     // 📖 Profile system removed - API keys now persist permanently across all sessions
     recommendMode,
     devMode,
+    syncSetMode,
+    syncSetName,
   }
 }
 

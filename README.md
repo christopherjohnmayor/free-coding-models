@@ -193,6 +193,10 @@ free-coding-models --daemon-status
 
 # Stop it cleanly
 free-coding-models --daemon-stop
+
+# Auto-discover and live-probe models into a named set
+free-coding-models --sync-set
+free-coding-models --sync-set my-coding-set
 ```
 
 Inside the TUI, press **`Shift+R`** to open the Router Dashboard. It polls `/health` and `/stats`, listens to `/stream/events`, and shows daemon state, active set, probe mode, circuit breaker health, token totals, and the live routed request log.
