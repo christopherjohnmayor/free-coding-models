@@ -2612,16 +2612,6 @@ export function createKeyHandler(ctx) {
       return
     }
 
-    // 📖 Ctrl+O: toggle footer visibility (collapse to single hint when hidden)
-    if (key.ctrl && key.name === 'o' && !key.meta) {
-      state.footerHidden = !state.footerHidden
-      if (!state.config.settings || typeof state.config.settings !== 'object') state.config.settings = {}
-      state.config.settings.footerHidden = state.footerHidden
-      saveConfig(state.config)
-      state.frame++ // 📖 Force immediate re-render
-      return
-    }
-
     // 📖 E toggles hiding models whose provider has no configured API key.
     // 📖 The preference is saved globally.
     if (key.name === 'e') {

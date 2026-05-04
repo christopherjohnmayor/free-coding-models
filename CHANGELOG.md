@@ -27,9 +27,12 @@
 - **Provider filters now derive from the catalog** — Command Palette provider filters are generated from `sources`, so new providers do not need a hardcoded UI update.
 - **Router model set expanded** — Default router candidate selection now supports up to 8 models and uses refreshed high-ranking defaults.
 - **External tool configs generalized** — OpenCode and Kilo can now auto-configure newly added OpenAI-compatible providers through shared provider metadata.
+- **Footer collapse removed** — The main TUI table now always keeps the full footer visible, matching the sticky header behavior and avoiding hidden navigation hints.
 
 ### Fixed
 
+- **Sticky TUI header visibility** — Fixed the main table line budget so the app/version row, search/filter row, column headers, and footer are all reserved before model rows are rendered. This prevents the alternate screen from scrolling the header out of view.
+- **Smart Router banner spacing** — Reserved a dedicated row while the inline Smart Router upgrade banner is visible so temporary banners no longer push sticky header rows off-screen.
 - **Router upstream hardening** — Fixed unsupported request parameter stripping, retryable failover behavior, content-type canonicalization, and long-stream timeout handling.
 - **Router auth/quota semantics** — Router now returns 401/429 when all candidates fail because of auth or quota instead of masking those cases as 503.
 - **OpenRouter sync-set filtering** — Router discovery no longer drops `openrouter/free` and `openrouter/owl-alpha` just because their IDs do not end with `:free`.

@@ -63,7 +63,7 @@ import {
 } from '../src/tool-launchers.js'
 import { getToolInstallPlan, isToolInstalled, resolveToolBinaryPath } from '../src/tool-bootstrap.js'
 import { TOOL_METADATA, TOOL_MODE_ORDER, getCompatibleTools, isModelCompatibleWithTool, findSimilarCompatibleModels } from '../src/tool-metadata.js'
-import { sortResultsWithPinnedFavorites } from '../src/render-helpers.js'
+import { sortResultsWithPinnedFavorites, stripAnsi } from '../src/render-helpers.js'
 import { parseMouseEvents, containsMouseSequence, createMouseHandler, MOUSE_ENABLE, MOUSE_DISABLE } from '../src/mouse.js'
 import { COLUMN_SORT_MAP } from '../src/render-table.js'
 import { startOpenClaw } from '../src/openclaw.js'
@@ -441,7 +441,7 @@ describe('sources.js data integrity', () => {
 
   it('sources object has nvidia key with correct structure', () => {
     assert.ok(sources.nvidia, 'sources.nvidia should exist')
-    assert.equal(sources.nvidia.name, 'NIM')
+    assert.equal(sources.nvidia.name, 'NVIDIA NIM')
     assert.ok(Array.isArray(sources.nvidia.models))
     assert.equal(sources.nvidia.models, nvidiaNim)
   })
@@ -1093,6 +1093,152 @@ describe('renderTable health labels', () => {
 
     assert.match(output, /AUTH FAIL/)
     assert.match(output, /NO KEY/)
+  })
+})
+
+describe('renderTable sticky header and footer layout', () => {
+  const makeManyResults = (count = 80) => Array.from({ length: count }, (_, idx) => mockResult({
+    idx: idx + 1,
+    label: `Model ${String(idx + 1).padStart(2, '0')}`,
+    providerKey: 'nvidia',
+    pings: [{ ms: 100 + idx, code: '200' }],
+    totalTokens: 0,
+  }))
+
+  const visibleLines = (output) => output
+    .split('\n')
+    .map((line) => stripAnsi(line).replace(/\x1b\[[0-9;?]*[A-Za-z]/g, ''))
+
+  it('does not overrun terminal height in the normal table view', () => {
+    const output = renderTable(
+      makeManyResults(),
+      0,
+      0,
+      0,
+      'avg',
+      'asc',
+      10_000,
+      Date.now(),
+      'opencode',
+      0,
+      0,
+      20,
+      140
+    )
+    const lines = visibleLines(output)
+
+    assert.ok(lines.length <= 20, `expected at most 20 lines, got ${lines.length}`)
+    assert.match(lines[0], /free-coding-models/)
+    assert.match(lines[1], /Search/)
+    assert.match(lines[2], /Model/)
+    assert.match(lines.at(-3), /F Favorite/)
+    assert.match(lines.at(-2), /Ctrl\+P Cmd Palette/)
+    assert.match(lines.at(-1), /Shift\+R Router/)
+  })
+
+  it('keeps title, search filters, and column headers visible when scrolled', () => {
+    const output = renderTable(
+      makeManyResults(),
+      0,
+      0,
+      40,
+      'avg',
+      'asc',
+      10_000,
+      Date.now(),
+      'opencode',
+      0,
+      40,
+      20,
+      140
+    )
+    const lines = visibleLines(output)
+
+    assert.ok(lines.length <= 20, `expected at most 20 lines, got ${lines.length}`)
+    assert.match(lines[0], /free-coding-models/)
+    assert.match(lines[1], /Search/)
+    assert.match(lines[2], /Model/)
+    assert.match(lines[3], /more above/)
+  })
+
+  it('reserves space for temporary footer rows without hiding the header', () => {
+    const output = renderTable(
+      makeManyResults(),
+      0,
+      0,
+      0,
+      'avg',
+      'asc',
+      10_000,
+      Date.now(),
+      'opencode',
+      0,
+      0,
+      20,
+      180,
+      0,
+      null,
+      'normal',
+      'auto',
+      false,
+      null,
+      false,
+      0,
+      'idle',
+      null,
+      false,
+      '9.9.9',
+      true,
+      false,
+      'deep'
+    )
+    const lines = visibleLines(output)
+
+    assert.ok(lines.length <= 20, `expected at most 20 lines, got ${lines.length}`)
+    assert.match(lines[0], /free-coding-models/)
+    assert.match(lines[1], /Search/)
+    assert.match(lines[2], /Model/)
+    assert.match(output, /UPDATE AVAILABLE/)
+    assert.match(output, /X Disable filter: "deep"/)
+  })
+
+  it('always renders the full footer even when an old collapsed-footer flag is passed', () => {
+    const output = renderTable(
+      makeManyResults(10),
+      0,
+      0,
+      0,
+      'avg',
+      'asc',
+      10_000,
+      Date.now(),
+      'opencode',
+      0,
+      0,
+      20,
+      140,
+      0,
+      null,
+      'normal',
+      'auto',
+      false,
+      null,
+      false,
+      0,
+      'idle',
+      null,
+      false,
+      null,
+      true,
+      false,
+      null,
+      null,
+      true
+    )
+
+    assert.doesNotMatch(output, /Toggle Footer/)
+    assert.match(output, /Ctrl\+P Cmd Palette/)
+    assert.match(output, /Shift\+R Router/)
   })
 })
 

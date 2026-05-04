@@ -237,12 +237,12 @@ function normalizeProvidersSection(providers) {
 
 function normalizeSettingsSection(settings) {
   const safeSettings = isPlainObject(settings) ? { ...settings } : {}
+  delete safeSettings.footerHidden
   return {
     ...safeSettings,
     hideUnconfiguredModels: typeof safeSettings.hideUnconfiguredModels === 'boolean' ? safeSettings.hideUnconfiguredModels : true,
     favoritesPinnedAndSticky: typeof safeSettings.favoritesPinnedAndSticky === 'boolean' ? safeSettings.favoritesPinnedAndSticky : false,
     theme: ['dark', 'light', 'auto'].includes(safeSettings.theme) ? safeSettings.theme : 'auto',
-    footerHidden: typeof safeSettings.footerHidden === 'boolean' ? safeSettings.footerHidden : false,
   }
 }
 
@@ -1007,7 +1007,7 @@ export function isProviderEnabled(config, providerKey) {
 /**
  * 📖 _emptyProfileSettings: Default TUI settings.
  *
- * @returns {{ tierFilter: string|null, sortColumn: string, sortAsc: boolean, pingInterval: number, hideUnconfiguredModels: boolean, favoritesPinnedAndSticky: boolean, preferredToolMode: string, theme: string, footerHidden: boolean }}
+ * @returns {{ tierFilter: string|null, sortColumn: string, sortAsc: boolean, pingInterval: number, hideUnconfiguredModels: boolean, favoritesPinnedAndSticky: boolean, preferredToolMode: string, theme: string }}
  */
 export function _emptyProfileSettings() {
   return {
@@ -1019,7 +1019,6 @@ export function _emptyProfileSettings() {
     favoritesPinnedAndSticky: false, // 📖 default mode keeps favorites as normal starred rows; press Y to pin+stick them.
     preferredToolMode: 'opencode', // 📖 remember the last Z-selected launcher across app restarts
     theme: 'auto',        // 📖 'auto' follows the terminal/OS theme, override with 'dark' or 'light' if needed
-    footerHidden: false,  // 📖 false = full footer shown; true = collapsed to a single "(W) Toggle Footer" hint
   }
 }
 

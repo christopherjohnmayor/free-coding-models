@@ -36,7 +36,6 @@ import chalk from 'chalk'
 import { createRequire } from 'module'
 import { sources } from '../sources.js'
 import {
-  TABLE_FIXED_LINES,
   COL_MODEL,
   TIER_CYCLE,
   msCell,
@@ -110,9 +109,10 @@ export const PROVIDER_COLOR = new Proxy({}, {
 })
 
 // ─── renderTable: mode param controls footer hint text (opencode vs openclaw) ─────────
-export function renderTable(results, pendingPings, frame, cursor = null, sortColumn = 'avg', sortDirection = 'asc', pingInterval = PING_INTERVAL, lastPingTime = Date.now(), mode = 'opencode', tierFilterMode = 0, scrollOffset = 0, terminalRows = 0, terminalCols = 0, originFilterMode = 0, legacyStatus = null, pingMode = 'normal', pingModeSource = 'auto', hideUnconfiguredModels = false, widthWarningStartedAt = null, widthWarningDismissed = false, widthWarningShowCount = 0, settingsUpdateState = 'idle', settingsUpdateLatestVersion = null, legacyFlag = false, startupLatestVersion = null, versionAlertsEnabled = true, favoritesPinnedAndSticky = false, customTextFilter = null, lastReleaseDate = null, footerHidden = false, verdictFilterMode = 0, healthFilterMode = 0, routerFooterRunning = false, routerFooterActiveSet = null, routerFooterTodayTokens = 0, routerFooterAllTimeTokens = 0, routerFooterRequests = 0) {
+export function renderTable(results, pendingPings, frame, cursor = null, sortColumn = 'avg', sortDirection = 'asc', pingInterval = PING_INTERVAL, lastPingTime = Date.now(), mode = 'opencode', tierFilterMode = 0, scrollOffset = 0, terminalRows = 0, terminalCols = 0, originFilterMode = 0, legacyStatus = null, pingMode = 'normal', pingModeSource = 'auto', hideUnconfiguredModels = false, widthWarningStartedAt = null, widthWarningDismissed = false, widthWarningShowCount = 0, settingsUpdateState = 'idle', settingsUpdateLatestVersion = null, legacyFlag = false, startupLatestVersion = null, versionAlertsEnabled = true, favoritesPinnedAndSticky = false, customTextFilter = null, lastReleaseDate = null, legacyFooterHidden = false, verdictFilterMode = 0, healthFilterMode = 0, routerFooterRunning = false, routerFooterActiveSet = null, routerFooterTodayTokens = 0, routerFooterAllTimeTokens = 0, routerFooterRequests = 0) {
   // 📖 Filter out hidden models for display
   const visibleResults = results.filter(r => !r.hidden)
+  void legacyFooterHidden
 
   const up      = visibleResults.filter(r => r.status === 'up').length
   const down    = visibleResults.filter(r => r.status === 'down').length
@@ -495,8 +495,10 @@ export function renderTable(results, pendingPings, frame, cursor = null, sortCol
 
   // 📖 Viewport clipping: only render models that fit on screen
   const hasCustomFilter = typeof customTextFilter === 'string' && customTextFilter.trim().length > 0
-  const extraFooterLines = versionStatus.isOutdated ? 1 : 0
-  const vp = calculateViewport(terminalRows, scrollOffset, sorted.length, extraFooterLines)
+  const extraFooterLines = (versionStatus.isOutdated ? 1 : 0) + (hasCustomFilter ? 1 : 0)
+  const vp = calculateViewport(terminalRows, scrollOffset, sorted.length, {
+    extraFixedLines: extraFooterLines,
+  })
   const paintSweScore = (score, paddedText) => {
     if (score >= 70) return chalk.bold.rgb(...getTierRgb('S+'))(paddedText)
     if (score >= 60) return chalk.bold.rgb(...getTierRgb('S'))(paddedText)
@@ -794,10 +796,8 @@ export function renderTable(results, pendingPings, frame, cursor = null, sortCol
   // 📖 Only pad when there are items below (hasBelow) to separate "more below" from footer.
   // 📖 When hasBelow=false, footer follows immediately — no empty gap needed.
   if (terminalRows > 0 && vp.hasBelow) {
-    const footerStartLine = lines.length + 1
-    const modelLines = footerStartLine - _firstModelLineIdx
-    const footerLineCount = footerHidden ? 1 : 3  // 📖 hidden=1 line, normal=3 lines
-    const blankCount = Math.max(0, terminalRows - modelLines - footerLineCount)
+    const footerLineCount = 3 + extraFooterLines
+    const blankCount = Math.max(0, terminalRows - lines.length - footerLineCount)
     for (let i = 0; i < blankCount; i++) lines.push('')
   }
 
@@ -844,148 +844,132 @@ export function renderTable(results, pendingPings, frame, cursor = null, sortCol
     }
   }
 
-  if (!footerHidden) {
-    // 📖 Full footer — all hint lines hidden when footerHidden=true to maximize table space
-    lines.push(
-      '  ' + hotkey('F', ' Favorite') +
-      themeColors.dim(`  •  `) +
-      hotkey('Y', ' Fav Mode') +
-      themeColors.dim(`  •  `) +
-      (tierFilterMode > 0
-        ? activeHotkey('T', ` Tier (${activeTierLabel})`, getTierRgb(activeTierLabel))
-        : hotkey('T', ' Tier')) +
-      themeColors.dim(`  •  `) +
-      (originFilterMode > 0
-        ? activeHotkey('D', ` Provider (${activeOriginLabel})`, PROVIDER_COLOR[[null, ...Object.keys(sources)][originFilterMode]] || [255, 255, 255])
-        : hotkey('D', ' Provider')) +
-      themeColors.dim(`  •  `) +
-      (hideUnconfiguredModels ? activeHotkey('E', ' Active only', configuredBadgeBg) : hotkey('E', ' Active only')) +
-      themeColors.dim(`  •  `) +
-      hotkey('P', ' Settings') +
-      themeColors.dim(`  •  `) +
-      hotkey('I', ' Help')
-    )
+  lines.push(
+    '  ' + hotkey('F', ' Favorite') +
+    themeColors.dim(`  •  `) +
+    hotkey('Y', ' Fav Mode') +
+    themeColors.dim(`  •  `) +
+    (tierFilterMode > 0
+      ? activeHotkey('T', ` Tier (${activeTierLabel})`, getTierRgb(activeTierLabel))
+      : hotkey('T', ' Tier')) +
+    themeColors.dim(`  •  `) +
+    (originFilterMode > 0
+      ? activeHotkey('D', ` Provider (${activeOriginLabel})`, PROVIDER_COLOR[[null, ...Object.keys(sources)][originFilterMode]] || [255, 255, 255])
+      : hotkey('D', ' Provider')) +
+    themeColors.dim(`  •  `) +
+    (hideUnconfiguredModels ? activeHotkey('E', ' Active only', configuredBadgeBg) : hotkey('E', ' Active only')) +
+    themeColors.dim(`  •  `) +
+    hotkey('P', ' Settings') +
+    themeColors.dim(`  •  `) +
+    hotkey('I', ' Help')
+  )
 
-    // 📖 Line 2: command palette + GitHub
-    {
-      const cpText = ' Ctrl+P Cmd Palette '
-      const parts = [
-        { text: '  ', key: null },
-        { text: cpText, key: 'ctrl+p' },
-        { text: '  ', key: null },
-      ]
-      const footerRow2 = lines.length + 1
-      let xPos = 1
-      for (const part of parts) {
-        const w = displayWidth(part.text)
-        if (part.key) footerHotkeys.push({ key: part.key, row: footerRow2, xStart: xPos, xEnd: xPos + w - 1 })
-        xPos += w
-      }
+  // 📖 Line 2: command palette + GitHub
+  {
+    const cpText = ' Ctrl+P Cmd Palette '
+    const parts = [
+      { text: '  ', key: null },
+      { text: cpText, key: 'ctrl+p' },
+      { text: '  ', key: null },
+    ]
+    const footerRow2 = lines.length + 1
+    let xPos = 1
+    for (const part of parts) {
+      const w = displayWidth(part.text)
+      if (part.key) footerHotkeys.push({ key: part.key, row: footerRow2, xStart: xPos, xEnd: xPos + w - 1 })
+      xPos += w
     }
-
-    // 📖 Line 2: command palette (highlighted as new) + GitHub link.
-    // 📖 Ctrl+P Cmd Palette uses neon-green-on-dark-green background to highlight the feature.
-    const paletteLabel = chalk.bgRgb(0, 60, 0).rgb(57, 255, 20).bold(' Ctrl+P Cmd Palette ')
-    const starLink = '⭐ ' + themeColors.link('\x1b]8;;https://github.com/vava-nessa/free-coding-models\x1b\\GitHub\x1b]8;;\x1b\\')
-    lines.push(
-      '  ' + paletteLabel + themeColors.dim(`  •  `) + starLink + themeColors.dim(`  •  `) +
-      chalk.rgb(255, 168, 209).bold('\x1b]8;;https://x.com/vavanessadev\x1b\\Support me by following me on X ! @vavanessadev\x1b]8;;\x1b\\')
-    )
-
-    if (versionStatus.isOutdated) {
-      const updateMsg = `  🚀⬆️ UPDATE AVAILABLE — v${LOCAL_VERSION} → v${versionStatus.latestVersion}  •  Click here or press Shift+U to update  🚀⬆️  `
-      const paddedBanner = terminalCols > 0
-        ? updateMsg + ' '.repeat(Math.max(0, terminalCols - displayWidth(updateMsg)))
-        : updateMsg
-      const fluoGreenBanner = chalk.bgRgb(57, 255, 20).rgb(0, 0, 0).bold(paddedBanner)
-      const updateBannerRow = lines.length + 1
-      _lastLayout.updateBannerRow = updateBannerRow
-      footerHotkeys.push({ key: 'update-click', row: updateBannerRow, xStart: 1, xEnd: Math.max(terminalCols, displayWidth(updateMsg)) })
-      lines.push(fluoGreenBanner)
-    } else {
-      _lastLayout.updateBannerRow = 0
-    }
-
-    // 📖 Optional active text-filter badge — surfaced inline if a custom filter is active.
-    // 📖 Changelog moved to Settings (P), Ctrl+C Exit moved to Help (Ctrl+H), Discord
-    // 📖 moved to onboarding + Settings — no more orphan hint lines down here.
-    let filterBadge = ''
-    if (hasCustomFilter) {
-      const normalizedFilter = customTextFilter.trim().replace(/\s+/g, ' ')
-      const filterPrefix = 'X Disable filter: "'
-      const filterSuffix = '"'
-      const baseBadgeWidth = displayWidth(` ${filterPrefix}${filterSuffix} `)
-      const availableFilterWidth = terminalCols > 0
-        ? Math.max(8, terminalCols - 4 - baseBadgeWidth)
-        : normalizedFilter.length
-      const visibleFilter = normalizedFilter.length > availableFilterWidth
-        ? `${normalizedFilter.slice(0, Math.max(3, availableFilterWidth - 3))}...`
-        : normalizedFilter
-      filterBadge = chalk.bgYellow.black.bold(` ${filterPrefix}${visibleFilter}${filterSuffix} `)
-    }
-
-    if (hasCustomFilter) {
-      // 📖 Mouse support: register click zone for the X-clear filter badge
-      const lastFooterRow = lines.length + 1
-      const badgePlain = `X Disable filter: "${customTextFilter.trim().replace(/\s+/g, ' ')}"`
-      const fullText = '  ' + ` ${badgePlain} `
-      const xStart = 3 // 📖 after the leading 2 spaces
-      const xEnd = xStart + displayWidth(` ${badgePlain} `) - 1
-      footerHotkeys.push({ key: 'x', row: lastFooterRow, xStart, xEnd })
-      void fullText
-      lines.push('  ' + filterBadge)
-    }
-
-    const releaseLabel = lastReleaseDate
-      ? chalk.rgb(255, 182, 193)(`Last release: ${lastReleaseDate}`)
-      : ''
-
-    // 📖 Router token stats + daemon status — Shift+R Router shown highlighted
-    // 📖 when the daemon is not running so it's the obvious entry point.
-    if (routerFooterRunning) {
-      const todayStr = formatTokenTotalCompact(routerFooterTodayTokens)
-      const allTimeStr = formatTokenTotalCompact(routerFooterAllTimeTokens)
-      const reqStr = String(routerFooterRequests)
-      const setLabel = routerFooterActiveSet ? themeColors.info(routerFooterActiveSet) : themeColors.dim('?')
-      lines.push(
-        '  ' + themeColors.success('●') + ' ' +
-        themeColors.dim('Router:') + ' ' + setLabel +
-        themeColors.dim('  •  Today:') + ' ' + themeColors.textBold(todayStr + ' tok') +
-        themeColors.dim('  •  All-time:') + ' ' + themeColors.textBold(allTimeStr + ' tok') +
-        themeColors.dim('  •  ' + reqStr + ' req') +
-        themeColors.dim('  •  ') + hotkey('Shift+R', ' Router') +
-        (releaseLabel ? themeColors.dim('  •  ') + releaseLabel : '')
-      )
-    } else {
-      // 📖 Highlighted Shift+R Router badge so the daemon entry point pops.
-      const routerBadge = chalk.bgRgb(88, 86, 214).rgb(255, 255, 255).bold(' Shift+R Router ')
-      lines.push(
-        '  ' + routerBadge + themeColors.dim('  •  ') + themeColors.error('○') + ' ' +
-        themeColors.dim('daemon not running') +
-        (releaseLabel ? themeColors.dim('  •  ') + releaseLabel : '')
-      )
-    }
-  } else {
-    // 📖 Collapsed footer: minimal toggle hint. Exit lives in Help.
-    lines.push(
-      '  ' + themeColors.hotkey('Ctrl+O') + themeColors.dim(' Toggle Footer') +
-      themeColors.dim('  •  ') +
-      themeColors.hotkey('Shift+R') + themeColors.dim(' Router') +
-      themeColors.dim('  •  ') +
-      themeColors.hotkey('I') + themeColors.dim(' Help')
-    )
   }
 
+  // 📖 Line 2: command palette (highlighted as new) + GitHub link.
+  // 📖 Ctrl+P Cmd Palette uses neon-green-on-dark-green background to highlight the feature.
+  const paletteLabel = chalk.bgRgb(0, 60, 0).rgb(57, 255, 20).bold(' Ctrl+P Cmd Palette ')
+  const starLink = '⭐ ' + themeColors.link('\x1b]8;;https://github.com/vava-nessa/free-coding-models\x1b\\GitHub\x1b]8;;\x1b\\')
+  lines.push(
+    '  ' + paletteLabel + themeColors.dim(`  •  `) + starLink + themeColors.dim(`  •  `) +
+    chalk.rgb(255, 168, 209).bold('\x1b]8;;https://x.com/vavanessadev\x1b\\Support me by following me on X ! @vavanessadev\x1b]8;;\x1b\\')
+  )
+
+  if (versionStatus.isOutdated) {
+    const updateMsg = `  🚀⬆️ UPDATE AVAILABLE — v${LOCAL_VERSION} → v${versionStatus.latestVersion}  •  Click here or press Shift+U to update  🚀⬆️  `
+    const paddedBanner = terminalCols > 0
+      ? updateMsg + ' '.repeat(Math.max(0, terminalCols - displayWidth(updateMsg)))
+      : updateMsg
+    const fluoGreenBanner = chalk.bgRgb(57, 255, 20).rgb(0, 0, 0).bold(paddedBanner)
+    const updateBannerRow = lines.length + 1
+    _lastLayout.updateBannerRow = updateBannerRow
+    footerHotkeys.push({ key: 'update-click', row: updateBannerRow, xStart: 1, xEnd: Math.max(terminalCols, displayWidth(updateMsg)) })
+    lines.push(fluoGreenBanner)
+  } else {
+    _lastLayout.updateBannerRow = 0
+  }
+
+  // 📖 Optional active text-filter badge — surfaced inline if a custom filter is active.
+  // 📖 Changelog moved to Settings (P), Ctrl+C Exit moved to Help (Ctrl+H), Discord
+  // 📖 moved to onboarding + Settings — no more orphan hint lines down here.
+  let filterBadge = ''
+  if (hasCustomFilter) {
+    const normalizedFilter = customTextFilter.trim().replace(/\s+/g, ' ')
+    const filterPrefix = 'X Disable filter: "'
+    const filterSuffix = '"'
+    const baseBadgeWidth = displayWidth(` ${filterPrefix}${filterSuffix} `)
+    const availableFilterWidth = terminalCols > 0
+      ? Math.max(8, terminalCols - 4 - baseBadgeWidth)
+      : normalizedFilter.length
+    const visibleFilter = normalizedFilter.length > availableFilterWidth
+      ? `${normalizedFilter.slice(0, Math.max(3, availableFilterWidth - 3))}...`
+      : normalizedFilter
+    filterBadge = chalk.bgYellow.black.bold(` ${filterPrefix}${visibleFilter}${filterSuffix} `)
+  }
+
+  if (hasCustomFilter) {
+    // 📖 Mouse support: register click zone for the X-clear filter badge
+    const lastFooterRow = lines.length + 1
+    const badgePlain = `X Disable filter: "${customTextFilter.trim().replace(/\s+/g, ' ')}"`
+    const fullText = '  ' + ` ${badgePlain} `
+    const xStart = 3 // 📖 after the leading 2 spaces
+    const xEnd = xStart + displayWidth(` ${badgePlain} `) - 1
+    footerHotkeys.push({ key: 'x', row: lastFooterRow, xStart, xEnd })
+    void fullText
+    lines.push('  ' + filterBadge)
+  }
+
+  const releaseLabel = lastReleaseDate
+    ? chalk.rgb(255, 182, 193)(`Last release: ${lastReleaseDate}`)
+    : ''
+
+  // 📖 Router token stats + daemon status — Shift+R Router shown highlighted
+  // 📖 when the daemon is not running so it's the obvious entry point.
+  if (routerFooterRunning) {
+    const todayStr = formatTokenTotalCompact(routerFooterTodayTokens)
+    const allTimeStr = formatTokenTotalCompact(routerFooterAllTimeTokens)
+    const reqStr = String(routerFooterRequests)
+    const setLabel = routerFooterActiveSet ? themeColors.info(routerFooterActiveSet) : themeColors.dim('?')
+    lines.push(
+      '  ' + themeColors.success('●') + ' ' +
+      themeColors.dim('Router:') + ' ' + setLabel +
+      themeColors.dim('  •  Today:') + ' ' + themeColors.textBold(todayStr + ' tok') +
+      themeColors.dim('  •  All-time:') + ' ' + themeColors.textBold(allTimeStr + ' tok') +
+      themeColors.dim('  •  ' + reqStr + ' req') +
+      themeColors.dim('  •  ') + hotkey('Shift+R', ' Router') +
+      (releaseLabel ? themeColors.dim('  •  ') + releaseLabel : '')
+    )
+  } else {
+    // 📖 Highlighted Shift+R Router badge so the daemon entry point pops.
+    const routerBadge = chalk.bgRgb(88, 86, 214).rgb(255, 255, 255).bold(' Shift+R Router ')
+    lines.push(
+      '  ' + routerBadge + themeColors.dim('  •  ') + themeColors.error('○') + ' ' +
+      themeColors.dim('daemon not running') +
+      (releaseLabel ? themeColors.dim('  •  ') + releaseLabel : '')
+    )
+  }
   _lastLayout.footerHotkeys = footerHotkeys
 
   // 📖 Append \x1b[K (erase to EOL) to each line so leftover chars from previous
-  // 📖 frames are cleared. \x1b[J (erase from cursor to end of screen) clears any
-  // 📖 stale content below when footer is hidden.
+  // 📖 frames are cleared. \x1b[J clears stale content below without adding a
+  // 📖 newline that could scroll the alternate screen.
   const EL = '\x1b[K'
   const cleared = lines.map(l => l + EL)
-  if (footerHidden) {
-    // 📖 When footer is hidden, \x1b[J erases stale footer content below the cursor
-    cleared.push('\x1b[J')
-  }
+  if (cleared.length > 0) cleared[cleared.length - 1] += '\x1b[J'
   return cleared.join('\n')
 }

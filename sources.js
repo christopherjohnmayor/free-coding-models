@@ -358,7 +358,7 @@ export const opencodeZen = [
 // 📖 See README for full tier-by-tier comparison
 export const sources = {
   nvidia: {
-    name: 'NIM',
+    name: 'NVIDIA NIM',
     url: 'https://integrate.api.nvidia.com/v1/chat/completions',
     models: nvidiaNim,
   },

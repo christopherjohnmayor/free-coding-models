@@ -15,8 +15,8 @@
  *   - `FPS` controls animation frame rate (braille spinner).
  *   - `COL_MODEL` / `COL_MS` control legacy ping-column widths (retained for compat).
  *   - `CELL_W` is derived from `COL_MS` and used by `msCell` / `spinCell`.
- *   - `TABLE_HEADER_LINES` + `TABLE_FOOTER_LINES` = `TABLE_FIXED_LINES` must stay in sync
- *     with the actual number of lines rendered by `renderTable()` in bin/.
+ *   - `TABLE_HEADER_LINES` and footer line counts must stay in sync with the
+ *     actual number of lines rendered by `renderTable()`.
  *   - `WIDTH_WARNING_MIN_COLS` controls when the narrow-terminal startup warning appears.
  *   - Overlay background colours (chalk.bgRgb) make each overlay panel visually distinct.
  *
@@ -101,8 +101,8 @@ export const WIDTH_WARNING_MIN_COLS = 80
 
 // 📖 Table row-budget constants — must stay in sync with renderTable()'s actual output.
 // 📖 If this drifts, model rows overflow and can push the title row out of view.
-export const TABLE_HEADER_LINES = 4  // 📖 title, filter bar, column headers, separator
-export const TABLE_FOOTER_LINES = 1  // 📖 single toggle-hint line when collapsed, full footer otherwise
+export const TABLE_HEADER_LINES = 3  // 📖 title, filter bar, column headers
+export const TABLE_FOOTER_LINES = 3  // 📖 actions, links, router status
 export const TABLE_FIXED_LINES  = TABLE_HEADER_LINES + TABLE_FOOTER_LINES
 
 // ─── Small cell-formatting helpers ────────────────────────────────────────────

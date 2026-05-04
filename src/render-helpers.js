@@ -47,7 +47,7 @@
  */
 
 import chalk from 'chalk'
-import { OVERLAY_PANEL_WIDTH, TABLE_FIXED_LINES } from './constants.js'
+import { OVERLAY_PANEL_WIDTH, TABLE_FIXED_LINES, TABLE_HEADER_LINES, TABLE_FOOTER_LINES } from './constants.js'
 import { sortResults } from './utils.js'
 
 // 📖 stripAnsi: Remove ANSI color/control sequences to estimate visible text width before padding.
@@ -165,14 +165,24 @@ export function sliceOverlayLines(lines, offset, terminalRows) {
 
 // ─── Table viewport calculation ────────────────────────────────────────────────
 
+// 📖 getTableFixedLines: Resolve the non-model line budget for the main table.
+// 📖 Header and full footer are always visible in the main table, with optional
+// 📖 extra fixed rows for temporary banners.
+export function getTableFixedLines({ extraFixedLines = 0 } = {}) {
+  return TABLE_HEADER_LINES + TABLE_FOOTER_LINES + Math.max(0, extraFixedLines)
+}
+
 // 📖 calculateViewport: Computes the visible slice of model rows that fits in the terminal.
 // 📖 When scroll indicators are needed, they each consume 1 line from the model budget.
-// 📖 `extraFixedLines` lets callers reserve temporary footer rows without shrinking the
-// 📖 viewport permanently for the normal case.
+// 📖 `lineBudget` lets callers reserve temporary footer/header rows without shrinking
+// 📖 the viewport permanently for the normal case.
 // 📖 Returns { startIdx, endIdx, hasAbove, hasBelow } for rendering.
-export function calculateViewport(terminalRows, scrollOffset, totalModels, extraFixedLines = 0) {
+export function calculateViewport(terminalRows, scrollOffset, totalModels, lineBudget = 0) {
   if (terminalRows <= 0) return { startIdx: 0, endIdx: totalModels, hasAbove: false, hasBelow: false }
-  let maxSlots = terminalRows - TABLE_FIXED_LINES - extraFixedLines
+  const fixedLines = typeof lineBudget === 'number'
+    ? TABLE_FIXED_LINES + Math.max(0, lineBudget)
+    : getTableFixedLines(lineBudget)
+  let maxSlots = terminalRows - fixedLines
   if (maxSlots < 1) maxSlots = 1
   if (totalModels <= maxSlots) return { startIdx: 0, endIdx: totalModels, hasAbove: false, hasBelow: false }
 
@@ -225,7 +235,8 @@ export function sortResultsWithPinnedFavorites(results, sortColumn, sortDirectio
 // 📖 Modifies st.scrollOffset in-place, returns undefined.
 export function adjustScrollOffset(st) {
   const total = st.visibleSorted ? st.visibleSorted.length : st.results.filter(r => !r.hidden).length
-  let maxSlots = st.terminalRows - TABLE_FIXED_LINES
+  const fixedLines = getTableFixedLines()
+  let maxSlots = st.terminalRows - fixedLines
   if (maxSlots < 1) maxSlots = 1
   if (total <= maxSlots) { st.scrollOffset = 0; return }
   // Ensure cursor is not above the visible window

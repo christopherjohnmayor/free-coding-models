@@ -435,7 +435,6 @@ export async function runApp(cliArgs, config) {
     healthFilterMode: 0,          // 📖 Index into HEALTH_CYCLE (0=All, then health states)
     hideUnconfiguredModels: config.settings?.hideUnconfiguredModels === true, // 📖 Hide providers with no configured API key when true.
     favoritesPinnedAndSticky: config.settings?.favoritesPinnedAndSticky === true, // 📖 false by default: favorites follow normal sort/filter rules until Y enables pinned+sticky mode.
-    footerHidden: config.settings?.footerHidden === true, // 📖 true = footer is collapsed to a single toggle hint
       scrollOffset: 0,              // 📖 First visible model index in viewport
       terminalRows: process.stdout.rows || 24,  // 📖 Current terminal height
       terminalCols: process.stdout.columns || 80, // 📖 Current terminal width
@@ -1049,6 +1048,22 @@ export async function runApp(cliArgs, config) {
         pinFavorites: state.favoritesPinnedAndSticky,
       })
     }
+    const canRenderRouterUpgradeBanner =
+      !state.routerOnboardingOpen &&
+      !state.settingsOpen &&
+      !state.installEndpointsOpen &&
+      !state.toolInstallPromptOpen &&
+      !state.installedModelsOpen &&
+      !state.routerDashboardOpen &&
+      !state.tokenUsageOpen &&
+      !state.commandPaletteOpen &&
+      !state.recommendOpen &&
+      !state.helpVisible &&
+      !state.changelogOpen &&
+      !state.incompatibleFallbackOpen
+    const routerUpgradeBanner = canRenderRouterUpgradeBanner ? overlays.renderRouterUpgradeBanner() : ''
+    const tableTerminalRows = routerUpgradeBanner ? Math.max(1, state.terminalRows - 1) : state.terminalRows
+
     let tableContent = null
     if (state.commandPaletteOpen) {
       if (!state.commandPaletteFrozenTable) {
@@ -1066,7 +1081,7 @@ export async function runApp(cliArgs, config) {
           state.mode,
           state.tierFilterMode,
           state.scrollOffset,
-          state.terminalRows,
+          tableTerminalRows,
           state.terminalCols,
           state.originFilterMode,
           null,
@@ -1084,7 +1099,7 @@ export async function runApp(cliArgs, config) {
           state.favoritesPinnedAndSticky,
           state.customTextFilter,
           state.lastReleaseDate,
-          state.footerHidden,
+          false,
           state.verdictFilterMode,
           state.healthFilterMode,
           state.routerFooterRunning,
@@ -1109,7 +1124,7 @@ export async function runApp(cliArgs, config) {
         state.mode,
         state.tierFilterMode,
         state.scrollOffset,
-        state.terminalRows,
+        tableTerminalRows,
         state.terminalCols,
         state.originFilterMode,
         null,
@@ -1127,7 +1142,7 @@ export async function runApp(cliArgs, config) {
         state.favoritesPinnedAndSticky,
         state.customTextFilter,
         state.lastReleaseDate,
-        state.footerHidden,
+        false,
         state.verdictFilterMode,
         state.healthFilterMode,
         state.routerFooterRunning,
@@ -1138,17 +1153,16 @@ export async function runApp(cliArgs, config) {
       )
     }
 
-    // 📖 Router upgrade banner: inline notification for existing users not yet seen router
-    if (!state.routerOnboardingOpen && !state.settingsOpen && !state.installEndpointsOpen && !state.toolInstallPromptOpen && !state.installedModelsOpen && !state.routerDashboardOpen && !state.tokenUsageOpen && !state.commandPaletteOpen && !state.recommendOpen && !state.helpVisible && !state.changelogOpen && !state.incompatibleFallbackOpen) {
-      const banner = overlays.renderRouterUpgradeBanner()
-      if (banner) {
-        tableContent = banner + '\n' + tableContent
-        const layout = getLastLayout()
-        layout.headerRow++
-        if (layout.firstModelRow > 0) layout.firstModelRow++
-        if (layout.lastModelRow > 0) layout.lastModelRow++
-        if (state.scrollOffset > 0) state.scrollOffset = 0
-      }
+    // 📖 Router upgrade banner: inline notification for existing users not yet seen router.
+    // 📖 The table is rendered one row shorter while the banner is visible so the
+    // 📖 alternate screen never scrolls the sticky title/search/header rows away.
+    if (routerUpgradeBanner) {
+      tableContent = routerUpgradeBanner + '\n' + tableContent
+      const layout = getLastLayout()
+      layout.headerRow++
+      if (layout.firstModelRow > 0) layout.firstModelRow++
+      if (layout.lastModelRow > 0) layout.lastModelRow++
+      if (state.scrollOffset > 0) state.scrollOffset = 0
     }
 
     const content = state.settingsOpen
@@ -1195,7 +1209,7 @@ export async function runApp(cliArgs, config) {
     pinFavorites: state.favoritesPinnedAndSticky,
   })
 
-      process.stdout.write(ALT_HOME + renderTable(state.results, state.pendingPings, state.frame, state.cursor, state.sortColumn, state.sortDirection, state.pingInterval, state.lastPingTime, state.mode, state.tierFilterMode, state.scrollOffset, state.terminalRows, state.terminalCols, state.originFilterMode, null, state.pingMode, state.pingModeSource, state.hideUnconfiguredModels, state.widthWarningStartedAt, state.widthWarningDismissed, state.widthWarningShowCount, state.settingsUpdateState, state.settingsUpdateLatestVersion, false, state.startupLatestVersion, state.versionAlertsEnabled, state.favoritesPinnedAndSticky, state.customTextFilter, state.lastReleaseDate, state.footerHidden, state.verdictFilterMode, state.healthFilterMode))
+      process.stdout.write(ALT_HOME + renderTable(state.results, state.pendingPings, state.frame, state.cursor, state.sortColumn, state.sortDirection, state.pingInterval, state.lastPingTime, state.mode, state.tierFilterMode, state.scrollOffset, state.terminalRows, state.terminalCols, state.originFilterMode, null, state.pingMode, state.pingModeSource, state.hideUnconfiguredModels, state.widthWarningStartedAt, state.widthWarningDismissed, state.widthWarningShowCount, state.settingsUpdateState, state.settingsUpdateLatestVersion, false, state.startupLatestVersion, state.versionAlertsEnabled, state.favoritesPinnedAndSticky, state.customTextFilter, state.lastReleaseDate, false, state.verdictFilterMode, state.healthFilterMode))
   if (process.stdout.isTTY) {
     process.stdout.flush && process.stdout.flush()
   }
