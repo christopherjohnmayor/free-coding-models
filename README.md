@@ -1,23 +1,24 @@
-<p align="center">
-  <img src="https://img.shields.io/npm/v/free-coding-models?color=76b900&label=npm&logo=npm" alt="npm version">
-  <img src="https://img.shields.io/node/v/free-coding-models?color=76b900&logo=node.js" alt="node version">
-  <img src="https://img.shields.io/npm/l/free-coding-models?color=76b900" alt="license">
-  <img src="https://img.shields.io/badge/models-170+-76b900?logo=nvidia" alt="models count">
-  <img src="https://img.shields.io/badge/providers-16-blue" alt="providers count">
-</p>
+<table>
+  <tr>
+    <td style="vertical-align: middle; width: 148px;">
+      <img src="logo.webp" alt="free-coding-models logo" width="128"><br><br>
+      <img src="https://img.shields.io/npm/v/free-coding-models?color=76b900&label=npm&logo=npm" alt="npm version"><br>
+      <img src="https://img.shields.io/node/v/free-coding-models?color=76b900&logo=node.js" alt="node version"><br>
+      <img src="https://img.shields.io/npm/l/free-coding-models?color=76b900" alt="license"><br>
+      <img src="https://img.shields.io/badge/models-170+-76b900?logo=nvidia" alt="models count"><br>
+      <img src="https://img.shields.io/badge/providers-16-blue" alt="providers count">
+    </td>
+    <td style="vertical-align: middle;">
+      <h1 style="margin-top: 0;">free-coding-models</h1>
+      <strong>Find the fastest free coding model in seconds</strong><br>
+      Track ~170 models across ~15 trusted free or free-limited AI providers in real time<br><br>
+      <strong>Install Free API endpoints to your favorite AI coding tools:</strong><br>
+      OpenCode CLI / Desktop / WebUI, OpenClaw, Crush, Goose, Aider, Kilo CLI, Qwen Code, OpenHands, Amp, Hermes, Continue, Cline, Xcode, Pi, Rovo, Gemini and more...<br><br>
+      <strong>Use Kimi K2, DeepSeek V3, GPT-OSS, Qwen3, MiniMax M2, GLM, Llama 4, Gemma 4, Devstral and more — for free</strong>
+    </td>
+  </tr>
+</table>
 
-<p align="center">
-  <img src="logo.webp" alt="free-coding-models logo" width="128">
-</p>
-
-<h1 align="center">free-coding-models</h1>
-                                                    
-                                                                                                                                                                                        
-
-<p align="center">
-  <strong>Find the fastest free coding model in seconds</strong><br>
-  <sub>Track ~170 models across ~15 vetted free or free-limited AI providers in real time</sub><br>  <sub> Install Free API endpoints to your favorite AI coding tool: <br>📦 OpenCode, 📦 OpenCode Desktop, 📦 OpenCode WebUI, 🦞 OpenClaw, 💘 Crush, 🪿 Goose, 🛠 Aider, ⚡️ Kilo CLI, 🐉 Qwen Code, 🤲 OpenHands, ⚡ Amp, 🔮 Hermes, ▶️ Continue, 🧠 Cline, 🛠️ Xcode, π Pi, 🦘 Rovo or ♊ Gemini in one keystroke</sub>
-</p>
 
 
 
