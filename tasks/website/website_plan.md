@@ -1,5 +1,62 @@
 # 🌐 free-coding-models — Website Plan
 
+## ✅ Task Tracker
+
+> Stack : **TanStack Start + Vite + Tailwind v4 + shadcn + MDX + Shiki + Pagefind + Vercel**
+> URL prod : `freecodingmodels.vercel.app` · Root : `website/` · Repo : `free-coding-models`
+
+### Sprint 1 — Setup + Landing
+- [x] Plan finalisé et décisions verrouillées
+- [x] Bootstrap TanStack Start dans `website/`
+- [x] Tailwind v4 + Geist/Geist Mono fonts
+- [x] Theme provider (Auto/Dark/Light) + CSS vars FCM
+- [x] Layout : nav + footer
+- [ ] Deploy preview Vercel configuré
+- [x] Section Hero (wordmark + subtitle + terminal block)
+- [x] Section Visual demo (screenshot full-bleed + glow)
+- [x] Section Social proof bar (logos outils CLI)
+- [x] Section Comparison table
+- [x] Section Feature pillars (4 pillars numérotés)
+- [x] Section Deployment cards (Local / Docker / Daemon)
+- [x] Section Smart Model Router (ASCII diagram)
+- [x] Section Provider showcase mini
+- [ ] Section Security badges
+- [x] Section Final CTA + footer
+- [ ] OG image par défaut
+- [ ] Deploy production sur `freecodingmodels.vercel.app`
+- [x] Passe React best practices (CSS classes hover, no any, no inline handlers)
+
+### Sprint 2 — Docs
+- [ ] Script `scripts/sync-docs.mjs` (copie `../docs/*.md` → `content/docs/`)
+- [ ] MDX pipeline (Vite plugin + remark/rehype + Shiki Vitesse Dark/Light)
+- [ ] Layout docs (sidebar sticky + ToC droite)
+- [ ] Composants MDX custom (Callout, Kbd, Terminal, ProviderCard, TierBadge…)
+- [ ] Pagefind search (post-build hook)
+- [ ] 10 pages docs portées depuis `docs/*.md`
+- [ ] « Edit on GitHub » sur chaque page
+
+### Sprint 3 — Blog + auto-release CI
+- [ ] Routes `/blog`, `/blog/[slug]`, `/blog/tag/[tag]`, `/blog/feed.xml`
+- [ ] Frontmatter zod schema (title, date, type, tags, version, excerpt, cover)
+- [ ] Layout post (sidebar ToC + body + share)
+- [ ] Index blog liste façon Linear changelog
+- [ ] OG image dynamique par post (satori)
+- [ ] Script `scripts/changelog-to-blogpost.mjs`
+- [ ] GitHub Action auto-commit release post depuis `CHANGELOG.md`
+- [ ] 2-3 posts initiaux
+
+### Sprint 4 — Pages dynamiques + Polish
+- [ ] `/providers` interactif (parse `sources.js`)
+- [ ] `/models` virtualisé (~170 lignes, `@tanstack/react-virtual`)
+- [ ] `/tools` grille avec install commands
+- [ ] `/changelog` rendu depuis `CHANGELOG.md` + GitHub API
+- [ ] OG images dynamiques par page (satori)
+- [ ] Lighthouse > 95 + A11y audit (axe-core)
+- [ ] 404 custom page
+- [ ] Sitemap + RSS
+
+---
+
 > Site web public et marketing pour le package `free-coding-models`.
 > But : convertir un visiteur curieux en `npm install -g free-coding-models` en moins de **10 secondes**, et l'aider à rester via une doc claire.
 
