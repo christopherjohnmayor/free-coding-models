@@ -1,43 +1,43 @@
-# OpenRouter — Audit de validité des modèles :free
+# OpenRouter — Validity Audit of :free Models
 
-**Date de vérification :** 2026-05-26
-**Source :** openrouter.ai/api/v1/models + openrouter.ai/models (free filter)
-
----
-
-## Résumé
-| Stat | Nombre | Détails |
-|------|--------|---------|
-| ✅ Confirmés existants | 23 | Models still live as :free on OpenRouter |
-| 🗑️ Dépréciés — à retirer | 8 | Free tiers removed (7) or never existed (1 Gemma typo) |
-| ❌ Supprimés — à retirer | 0 | (merged with dépréciés) |
-| ➕ Nouveaux — à ajouter | 3 | DeepSeek V4 Flash, Arcee Trinity, Baidu CoBuddy |
-| 🔧 ID modifié | 1 | Nemotron Nano 30B ID changed |
-| 📏 Context modifié | 7 | Multiple context length corrections |
-| 📊 Score modifié | 1 | MiniMax M2.5 SWE-bench: 74.0% → 80.2% |
+**Verification date:** 2026-05-26
+**Source:** openrouter.ai/api/v1/models + openrouter.ai/models (free filter)
 
 ---
 
-## 🗑️ Modèles DÉPRÉCIÉS / ❌ SUPPRIMÉS
+## Summary
+| Stat | Count | Details |
+|------|-------|---------|
+| ✅ Confirmed live | 23 | Models still live as :free on OpenRouter |
+| 🗑️ Deprecated — to remove | 8 | Free tiers removed (7) or never existed (1 Gemma typo) |
+| ❌ Removed — to remove | 0 | (merged with deprecated) |
+| ➕ New — to add | 3 | DeepSeek V4 Flash, Arcee Trinity, Baidu CoBuddy |
+| 🔧 ID changed | 1 | Nemotron Nano 30B ID changed |
+| 📏 Context changed | 7 | Multiple context length corrections |
+| 📊 Score changed | 1 | MiniMax M2.5 SWE-bench: 74.0% → 80.2% |
 
-| # | Model ID | Display Name | Tier | Statut | Action |
+---
+
+## 🗑️ DEPRECATED Models / ❌ REMOVED
+
+| # | Model ID | Display Name | Tier | Status | Action |
 |---|----------|-------------|------|--------|--------|
-| 1 | `tencent/hy3-preview:free` | Tencent HY3 Preview | S+ | 🗑️ Free tier removed | RETIRER |
-| 2 | `inclusionai/ling-2.6-1t:free` | Ling 2.6 1T | S | 🗑️ Free tier removed | RETIRER |
-| 3 | `google/gemma-3n-e2b-it:free` | Gemma 3n E2B | B+ | 🗑️ Free tier removed | RETIRER |
-| 4 | `google/gemma-3-27b-it:free` | Gemma 3 27B | B | 🗑️ Free tier removed | RETIRER |
-| 5 | `google/gemma-3-12b-it:free` | Gemma 3 12B | C | 🗑️ Free tier removed | RETIRER |
-| 6 | `google/gemma-3n-e4b-it:free` | Gemma 3n E4B | C | 🗑️ Free tier removed | RETIRER |
-| 7 | `google/gemma-3-4b-it:free` | Gemma 3 4B | C | 🗑️ Free tier removed | RETIRER |
-| 8 | `google/gemma-4-31b-a4b-it:free` | Gemma 4 31B MoE | B | ❌ N'EXISTE PAS — erreur de données | RETIRER |
+| 1 | `tencent/hy3-preview:free` | Tencent HY3 Preview | S+ | 🗑️ Free tier removed | REMOVE |
+| 2 | `inclusionai/ling-2.6-1t:free` | Ling 2.6 1T | S | 🗑️ Free tier removed | REMOVE |
+| 3 | `google/gemma-3n-e2b-it:free` | Gemma 3n E2B | B+ | 🗑️ Free tier removed | REMOVE |
+| 4 | `google/gemma-3-27b-it:free` | Gemma 3 27B | B | 🗑️ Free tier removed | REMOVE |
+| 5 | `google/gemma-3-12b-it:free` | Gemma 3 12B | C | 🗑️ Free tier removed | REMOVE |
+| 6 | `google/gemma-3n-e4b-it:free` | Gemma 3n E4B | C | 🗑️ Free tier removed | REMOVE |
+| 7 | `google/gemma-3-4b-it:free` | Gemma 3 4B | C | 🗑️ Free tier removed | REMOVE |
+| 8 | `google/gemma-4-31b-a4b-it:free` | Gemma 4 31B MoE | B | ❌ DOES NOT EXIST — data error | REMOVE |
 
-**Notes importantes :**
-- Google a retiré tous les free tiers de la série Gemma 3/3n. Seuls les Gemma 4 restent gratuits.
-- `gemma-4-31b-a4b-it:free` n'a jamais existé — les deux modèles Gemma 4 gratuits sont `gemma-4-31b-it:free` (dense 31B) et `gemma-4-26b-a4b-it:free` (MoE 26B).
+**Important notes:**
+- Google has removed all free tiers from the Gemma 3/3n series. Only Gemma 4 models remain free.
+- `gemma-4-31b-a4b-it:free` never existed — the two free Gemma 4 models are `gemma-4-31b-it:free` (dense 31B) and `gemma-4-26b-a4b-it:free` (MoE 26B).
 
 ---
 
-## ➕ Nouveaux modèles à ajouter
+## ➕ New models to add
 
 | # | Model ID | Display Name | Suggested Tier | SWE-bench | Context | Justification |
 |---|----------|-------------|---------------|-----------|---------|---------------|
@@ -49,7 +49,7 @@
 
 ---
 
-## ✅ Modèles CONFIRMÉS opérationnels
+## ✅ CONFIRMED live models
 
 | # | Model ID | Display Name | Current Tier | API Context | Status | Notes |
 |---|----------|-------------|-------------|-------------|--------|-------|
@@ -83,7 +83,7 @@
 
 ---
 
-## 📏 Modifications de context length
+## 📏 Context length changes
 
 | Model ID | Old Context | New Context |
 |----------|-------------|-------------|
@@ -97,7 +97,7 @@
 
 ---
 
-## 📊 Modifications de score
+## 📊 Score changes
 
 | Model ID | Old Score | New Score |
 |----------|-----------|-----------|
@@ -105,9 +105,9 @@
 
 ---
 
-## 📝 Modifications à appliquer dans sources.js
+## 📝 Changes to apply in sources.js
 
-### RETIRER (8 modèles)
+### REMOVE (8 models)
 
 ```javascript
 ['tencent/hy3-preview:free',                   'Tencent HY3 Preview','S+', '-',     '262k'],
@@ -120,7 +120,7 @@
 ['google/gemma-4-31b-a4b-it:free',            'Gemma 4 31B MoE',    'B',  '-',     '256k'],
 ```
 
-### AJOUTER (3 nouveaux modèles)
+### ADD (3 new models)
 
 ```javascript
 ['deepseek/deepseek-v4-flash:free',           'DeepSeek V4 Flash',  'S',  '-',     '1M'],
@@ -128,7 +128,7 @@
 ['baidu/cobuddy:free',                        'Baidu CoBuddy',       'B+', '-',     '131k'],
 ```
 
-### MODIFIER (context + score + ID updates)
+### MODIFY (context + score + ID updates)
 
 ```javascript
 ['poolside/laguna-m.1:free',                  'Poolside Laguna M.1', 'S+', '-',     '131k'],    // was 256k

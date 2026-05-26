@@ -1,23 +1,23 @@
-# Scaleway — Audit de validité des modèles
+# Scaleway — Model Validity Audit
 
-**Date de vérification :** 2026-05-26
-**Source :** https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/
+**Verification date:** 2026-05-26
+**Source:** https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/
 
 ---
 
-## Résumé
-| Stat | Nombre | Détails |
-|------|--------|---------|
-| ✅ Confirmés existants | 10 | Tous les modèles sont encore dans le catalogue |
-| 🗑️ Dépréciés — à retirer | 0 | Aucun des 10 modèles n'est EOL |
-| ❌ Supprimés — à retirer | 0 | Aucun modèle supprimé |
+## Summary
+| Stat | Count | Details |
+|------|-------|---------|
+| ✅ Confirmed active | 10 | All models are still in the catalog |
+| 🗑️ Deprecated — to remove | 0 | None of the 10 models are EOL |
+| ❌ Removed — to remove | 0 | No models removed |
 | ⚠️ Non-Serverless | 1 | `mistral-large-3-675b` — Dedicated only |
-| ➕ Nouveaux — à ajouter | 1 | `pixtral-12b-2409` (Vision, Serverless) |
-| 📝 Context window erreurs | 7 | La moitié des context windows sont incorrectes |
+| ➕ New — to add | 1 | `pixtral-12b-2409` (Vision, Serverless) |
+| 📝 Context window errors | 7 | Half of the context windows are incorrect |
 
 ---
 
-## ✅ Modèles CONFIRMÉS opérationnels (Serverless)
+## ✅ CONFIRMED operational models (Serverless)
 
 | # | Model ID | Display Name | Tier | ctx sources.js | ctx Scaleway | Serverless? | Note |
 |---|---|---|---|---|---|---|---|
@@ -34,7 +34,7 @@
 
 ---
 
-## 📝 Corrections de context window
+## 📝 Context window corrections
 
 | Model ID | sources.js | Scaleway doc | Correct value |
 |---|---|---|---|
@@ -48,28 +48,28 @@
 
 ---
 
-## ➕ Nouveaux modèles à ajouter (Serverless)
+## ➕ New models to add (Serverless)
 
-| Model ID | Display Name | Type | Context | Tier suggéré | Note |
+| Model ID | Display Name | Type | Context | Suggested tier | Note |
 |---|---|---|---|---|---|
-| `pixtral-12b-2409` | Pixtral 12B | Vision-Language | 128k | B | Vision model, marginalement pertinent pour coding |
+| `pixtral-12b-2409` | Pixtral 12B | Vision-Language | 128k | B | Vision model, marginally relevant for coding |
 
 ---
 
-## ⚠️ Modèle NON disponible en Serverless
+## ⚠️ Model NOT available in Serverless
 
-| Model ID | Statut | Action recommandée |
+| Model ID | Status | Recommended action |
 |---|---|---|
-| `mistral/mistral-large-3-675b-instruct-2512` | **Dedicated only** | Considérer le retirer du provider Scaleway ou annoter `dedicated: true` |
+| `mistral/mistral-large-3-675b-instruct-2512` | **Dedicated only** | Consider removing from Scaleway provider or annotating `dedicated: true` |
 
 ---
 
-## 📝 Modifications à appliquer dans sources.js
+## 📝 Changes to apply in sources.js
 
-### CORRECTIONS de context window
+### Context window CORRECTIONS
 
 ```javascript
-// AVANT
+// BEFORE
 ['devstral-2-123b-instruct-2512',   'Devstral 2 123B',   'S+', '72.2%', '256k'],
 ['qwen3-235b-a22b-instruct-2507',   'Qwen3 235B',        'S+', '70.0%', '128k'],
 ['gpt-oss-120b',                    'GPT OSS 120B',      'S',  '60.0%', '131k'],
@@ -78,7 +78,7 @@
 ['llama-3.3-70b-instruct',          'Llama 3.3 70B',     'A-', '39.5%', '128k'],
 ['gemma-3-27b-it',                  'Gemma 3 27B',       'B',  '22.0%', '128k'],
 
-// APRÈS
+// AFTER
 ['devstral-2-123b-instruct-2512',   'Devstral 2 123B',   'S+', '72.2%', '200k'],
 ['qwen3-235b-a22b-instruct-2507',   'Qwen3 235B',        'S+', '70.0%', '250k'],
 ['gpt-oss-120b',                    'GPT OSS 120B',      'S',  '60.0%', '128k'],
@@ -88,7 +88,7 @@
 ['gemma-3-27b-it',                  'Gemma 3 27B',       'B',  '22.0%', '40k'],
 ```
 
-### AJOUT
+### ADDITION
 
 ```javascript
 ['pixtral-12b-2409',                'Pixtral 12B',        'B',  '~20%',  '128k'],

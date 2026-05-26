@@ -1,21 +1,21 @@
-# OVHcloud AI Endpoints — Audit de validité des modèles
+# OVHcloud AI Endpoints — Model Validity Audit
 
-**Date de vérification :** 2026-05-26
-**Source :** endpoints.ai.cloud.ovh.net / OVHcloud AI docs
-
----
-
-## Résumé
-| Stat | Nombre | Détails |
-|------|--------|---------|
-| ✅ Confirmés existants | 5 | Qwen3-Coder-30B, gpt-oss-120b, gpt-oss-20b, Meta-Llama-3_3-70B, Qwen3-32B |
-| 🗑️ Retiré du catalogue | 1 | Llama-3.1-8B-Instruct (delisted) |
-| ⚠️ Config corrigée | 4 | Context window corrections |
-| ➕ Nouveaux — à ajouter | 1 | Qwen3.5-397B-A17B (nouveau, tagged "New") |
+**Verification date:** 2026-05-26
+**Source:** endpoints.ai.cloud.ovh.net / OVHcloud AI docs
 
 ---
 
-## ✅ Modèles CONFIRMÉS opérationnels
+## Summary
+| Stat | Count | Details |
+|------|-------|---------|
+| ✅ Confirmed existing | 5 | Qwen3-Coder-30B, gpt-oss-120b, gpt-oss-20b, Meta-Llama-3_3-70B, Qwen3-32B |
+| 🗑️ Delisted from catalog | 1 | Llama-3.1-8B-Instruct (delisted) |
+| ⚠️ Config corrected | 4 | Context window corrections |
+| ➕ New — to add | 1 | Qwen3.5-397B-A17B (new, tagged "New") |
+
+---
+
+## ✅ CONFIRMED operational models
 
 | Model ID | Display Name | ctx sources.js | ctx OVHcloud | Note |
 |----------|-------------|---------------|-------------|------|
@@ -27,52 +27,52 @@
 
 ---
 
-## 🗑️ Modèle RETIRÉ du catalogue
+## 🗑️ DELETED from catalog model
 
 ### `Llama-3.1-8B-Instruct` — Llama 3.1 8B
-- **Statut :** Retiré du catalogue public (detail page encore accessible mais modèle non listé)
-- **Action :** RETIRER de sources.js
+- **Status:** Delisted from public catalog (detail page still accessible but model not listed)
+- **Action:** REMOVE from sources.js
 
 ---
 
-## ⚠️ Corrections de context window
+## ⚠️ Context window corrections
 
 | Model ID | ctx sources.js | ctx OVHcloud | Correction |
 |----------|---------------|-------------|------------|
-| `Qwen3.5-9B` | 128k | **262k** | ⚠️ Corriger → 262k |
-| `Mistral-Small-3.2-24B-Instruct-2506` | 131k | **128k** | ⚠️ Corriger → 128k |
-| `Mistral-Nemo-Instruct-2407` | 128k | **118k** | ⚠️ Corriger → 118k |
-| `Mistral-7B-Instruct-v0.3` | 32k | **127k** (extended via RoPE) | ⚠️ Corriger → 127k |
+| `Qwen3.5-9B` | 128k | **262k** | ⚠️ Fix → 262k |
+| `Mistral-Small-3.2-24B-Instruct-2506` | 131k | **128k** | ⚠️ Fix → 128k |
+| `Mistral-Nemo-Instruct-2407` | 128k | **118k** | ⚠️ Fix → 118k |
+| `Mistral-7B-Instruct-v0.3` | 32k | **127k** (extended via RoPE) | ⚠️ Fix → 127k |
 
 ---
 
-## ➕ Nouveaux modèles à ajouter
+## ➕ New models to add
 
-| Model ID | Display Name | Tier suggéré | CTX | Notes |
-|----------|-------------|-------------|-----|-------|
+| Model ID | Display Name | Suggested tier | CTX | Notes |
+|----------|-------------|---------------|-----|-------|
 | `Qwen3.5-397B-A17B` | Qwen3.5 397B MoE | S | 262k | 🆕 Tagged "New", fp8, Function calling + Multimodal + Reasoning |
 
 ---
 
-## 📝 Modifications à appliquer dans sources.js
+## 📝 Changes to apply in sources.js
 
-### RETIRER
+### REMOVE
 
 ```javascript
 ['Llama-3.1-8B-Instruct', 'Llama 3.1 8B', 'B', '28.8%', '131k'],
 ```
 
-### CORRIGER
+### FIX
 
 ```javascript
-// AVANT → APRÈS
+// BEFORE → AFTER
 ['Qwen3.5-9B', 'Qwen3.5 9B', 'B+', '30.0%', '128k'],  → ['Qwen3.5-9B', 'Qwen3.5 9B', 'B+', '30.0%', '262k'],
 ['Mistral-Small-3.2-24B-Instruct-2506', 'Mistral Small 3.2', 'B+', '34.0%', '131k'], → ['Mistral-Small-3.2-24B-Instruct-2506', 'Mistral Small 3.2', 'B+', '34.0%', '128k'],
 ['Mistral-Nemo-Instruct-2407', 'Mistral Nemo', 'B+', '30.0%', '128k'], → ['Mistral-Nemo-Instruct-2407', 'Mistral Nemo', 'B+', '30.0%', '118k'],
 ['Mistral-7B-Instruct-v0.3', 'Mistral 7B Instruct', 'B', '25.0%', '32k'], → ['Mistral-7B-Instruct-v0.3', 'Mistral 7B Instruct', 'B', '25.0%', '127k'],
 ```
 
-### AJOUTER
+### ADD
 
 ```javascript
 ['Qwen3.5-397B-A17B', 'Qwen3.5 397B MoE', 'S', '-', '262k'],

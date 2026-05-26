@@ -1,45 +1,45 @@
-# Cloudflare Workers AI — Audit de validité des modèles
+# Cloudflare Workers AI — Model Validity Audit
 
-**Date de vérification :** 2026-05-26
-**Source :** https://developers.cloudflare.com/workers-ai/models/
-
----
-
-## Résumé
-| Stat | Nombre | Détails |
-|------|--------|---------|
-| ✅ Confirmés existants | 13 | Tous actifs |
-| 🗑️ N'existe pas — à retirer | 1 | `gemma-4-31b-it` (jamais existé sur CF) |
-| ⚠️ Dépréciation imminente | 1 | `llama-3.1-8b-instruct` (30/05/2026) + contexte réel = 8k |
-| ➕ Nouveaux — à ajouter | 1 | `deepseek-r1-distill-qwen-32b` |
-| 📝 Config à corriger | 2 | kimi-k2.6 (256k→262k), llama-3.1-8b (128k→8k) |
+**Verification date:** 2026-05-26
+**Source:** https://developers.cloudflare.com/workers-ai/models/
 
 ---
 
-## 🗑️ Modèles à RETIRER
+## Summary
+| Stat | Count | Details |
+|------|-------|---------|
+| ✅ Confirmed existing | 13 | All active |
+| 🗑️ Does not exist — to remove | 1 | `gemma-4-31b-it` (never existed on CF) |
+| ⚠️ Imminent deprecation | 1 | `llama-3.1-8b-instruct` (30/05/2026) + real context = 8k |
+| ➕ New — to add | 1 | `deepseek-r1-distill-qwen-32b` |
+| 📝 Config to correct | 2 | kimi-k2.6 (256k→262k), llama-3.1-8b (128k→8k) |
+
+---
+
+## 🗑️ Models to REMOVE
 
 ### `@cf/google/gemma-4-31b-it` — Gemma 4 31B
-- **Statut :** 404 — Ce modèle **n'a jamais existé** sur Cloudflare
-- **Note :** Le seul modèle Gemma 4 sur CF est `gemma-4-26b-a4b-it`
-- **Action :** RETIRER immédiatement
+- **Status:** 404 — This model **never existed** on Cloudflare
+- **Note:** The only Gemma 4 model on CF is `gemma-4-26b-a4b-it`
+- **Action:** REMOVE immediately
 
 ---
 
-## ⚠️ Dépréciation imminente
+## ⚠️ Imminent deprecation
 
 ### `@cf/meta/llama-3.1-8b-instruct` — Llama 3.1 8B
-- **Dépréciation :** 30/05/2026 (dans 4 jours)
-- **Contexte réel CF :** **7,968 tokens (~8k)** — PAS 128k !
-- **Double problème :** (1) dépréciation imminente, (2) contexte est SEULEMENT 8k sur CF
-- **Action :** RETIRER
+- **Deprecation:** 30/05/2026 (in 4 days)
+- **Real CF context:** **7,968 tokens (~8k)** — NOT 128k!
+- **Double problem:** (1) imminent deprecation, (2) context is ONLY 8k on CF
+- **Action:** REMOVE
 
 ---
 
-## ✅ Modèles CONFIRMÉS opérationnels
+## ✅ CONFIRMED operational models
 
 | Model ID | Display Name | CTX sources.js | CTX Cloudflare | Note |
 |----------|-------------|---------------|---------------|------|
-| `@cf/moonshotai/kimi-k2.6` | Kimi K2.6 | 256k | **262,144** | ⚠️ Corriger → 262k |
+| `@cf/moonshotai/kimi-k2.6` | Kimi K2.6 | 256k | **262,144** | ⚠️ Correct → 262k |
 | `@cf/zai-org/glm-4.7-flash` | GLM-4.7-Flash | 131k | 131,072 | ✅ |
 | `@cf/openai/gpt-oss-120b` | GPT OSS 120B | 128k | 128,000 | ✅ |
 | `@cf/qwen/qwq-32b` | QwQ 32B | 131k | ~131k | ✅ |
@@ -55,33 +55,33 @@
 
 ---
 
-## ➕ Nouveaux modèles à ajouter
+## ➕ New models to add
 
-| Model ID | Display Name | Tier suggéré | CTX | Notes |
-|----------|-------------|-------------|-----|-------|
-| `@cf/deepseek-ai/deepseek-r1-distill-qwen-32b` | DeepSeek R1 Distill 32B | A- | 80k | Modèle de raisonnement, contexte 80k |
+| Model ID | Display Name | Suggested tier | CTX | Notes |
+|----------|-------------|---------------|-----|-------|
+| `@cf/deepseek-ai/deepseek-r1-distill-qwen-32b` | DeepSeek R1 Distill 32B | A- | 80k | Reasoning model, 80k context |
 
 ---
 
-## 📝 Modifications à appliquer dans sources.js
+## 📝 Changes to apply in sources.js
 
-### RETIRER
+### REMOVE
 
 ```javascript
-['@cf/google/gemma-4-31b-it',               'Gemma 4 31B',       'A',  '45.0%', '256k'],  // N'existe pas sur CF
-['@cf/meta/llama-3.1-8b-instruct',          'Llama 3.1 8B',      'B',  '28.8%', '128k'],  // Dépréciation 30/05 + ctx = 8k
+['@cf/google/gemma-4-31b-it',               'Gemma 4 31B',       'A',  '45.0%', '256k'],  // Does not exist on CF
+['@cf/meta/llama-3.1-8b-instruct',          'Llama 3.1 8B',      'B',  '28.8%', '128k'],  // Deprecation 30/05 + ctx = 8k
 ```
 
-### CORRIGER
+### CORRECT
 
 ```javascript
-// AVANT
+// BEFORE
 ['@cf/moonshotai/kimi-k2.6', 'Kimi K2.6', 'S+', '76.8%', '256k'],
-// APRÈS
+// AFTER
 ['@cf/moonshotai/kimi-k2.6', 'Kimi K2.6', 'S+', '76.8%', '262k'],
 ```
 
-### AJOUTER
+### ADD
 
 ```javascript
 ['@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', 'DeepSeek R1 Distill 32B', 'A-', '45.0%', '80k'],
@@ -91,5 +91,5 @@
 
 ## Sources
 
-- **Cloudflare Workers AI Models** : [developers.cloudflare.com/workers-ai/models](https://developers.cloudflare.com/workers-ai/models/)
-- Pages individuelles vérifiées : kimi-k2.6, glm-4.7-flash, gpt-oss-120b, gemma-4-26b-a4b-it, llama-3.1-8b-instruct
+- **Cloudflare Workers AI Models**: [developers.cloudflare.com/workers-ai/models](https://developers.cloudflare.com/workers-ai/models/)
+- Individual pages verified: kimi-k2.6, glm-4.7-flash, gpt-oss-120b, gemma-4-26b-a4b-it, llama-3.1-8b-instruct

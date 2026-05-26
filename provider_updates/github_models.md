@@ -1,23 +1,23 @@
-# GitHub Models — Audit de validité des modèles
+# GitHub Models — Model Validity Audit
 
-**Date de vérification :** 2026-05-26
-**Source :** models.github.ai/catalog/models (REST API)
-
----
-
-## Résumé
-| Stat | Nombre | Détails |
-|------|--------|---------|
-| ✅ Confirmés existants | 15 | Tous les modèles actuels existent |
-| 🗑️ Dépréciés — à retirer | 0 | Aucun |
-| ➕ Nouveaux — à ajouter | 11 | Free-tier models disponibles (GPT-4o, Phi-4, Cohere, Jamba, etc.) |
-| ⚠️ Corrections de config | 1 | `ministral-3b` context 32k → 128k |
+**Verification date:** 2026-05-26
+**Source:** models.github.ai/catalog/models (REST API)
 
 ---
 
-## ✅ Modèles CONFIRMÉS opérationnels
+## Summary
+| Stat | Count | Details |
+|------|-------|---------|
+| ✅ Confirmed existing | 15 | All current models exist |
+| 🗑️ Deprecated — to remove | 0 | None |
+| ➕ New — to add | 11 | Free-tier models available (GPT-4o, Phi-4, Cohere, Jamba, etc.) |
+| ⚠️ Config corrections | 1 | `ministral-3b` context 32k → 128k |
 
-| # | Model ID | Display Name | Tier | SWE | CTX | Statut |
+---
+
+## ✅ CONFIRMED operational models
+
+| # | Model ID | Display Name | Tier | SWE | CTX | Status |
 |---|----------|-------------|------|-----|-----|--------|
 | 1 | `openai/gpt-4.1` | GPT-4.1 | S+ | - | 1M | ✅ Free (high tier) |
 | 2 | `openai/gpt-4.1-mini` | GPT-4.1 Mini | S | - | 1M | ✅ Free (low tier) |
@@ -37,55 +37,55 @@
 
 ---
 
-## ⚠️ Corrections de config
+## ⚠️ Config corrections
 
-| Model ID | Champ | Ancien | Nouveau |
-|----------|-------|--------|---------|
+| Model ID | Field | Old | New |
+|----------|-------|-----|-----|
 | `mistral-ai/ministral-3b` | context | 32k | **128k** (131,072 tokens) |
 
 ---
 
-## ➕ Nouveaux modèles à ajouter (free-tier, pertinents pour coding)
+## ➕ New models to add (free-tier, relevant for coding)
 
-### Free High Tier Models (8 nouveaux)
+### Free High Tier Models (8 new)
 
-| Model ID | Display Name | Tier suggéré | CTX | Notes |
-|----------|-------------|-------------|-----|-------|
-| `openai/gpt-4o` | GPT-4o | S | 128k | Frontier multimodal, gratuit sur GitHub Models |
-| `openai/gpt-4o-mini` | GPT-4o Mini | A | 128k | Version économique de GPT-4o |
+| Model ID | Display Name | Suggested Tier | CTX | Notes |
+|----------|-------------|---------------|-----|-------|
+| `openai/gpt-4o` | GPT-4o | S | 128k | Frontier multimodal, free on GitHub Models |
+| `openai/gpt-4o-mini` | GPT-4o Mini | A | 128k | Economical version of GPT-4o |
 | `microsoft/phi-4` | Phi-4 | A | 16k | 14B params, excellent reasoning |
-| `microsoft/phi-4-mini` | Phi-4 Mini | B+ | 128k | Version mini de Phi-4 |
-| `microsoft/phi-4-mini-reasoning` | Phi-4 Mini Reasoning | B+ | 128k | Variante reasoning |
+| `microsoft/phi-4-mini` | Phi-4 Mini | B+ | 128k | Mini version of Phi-4 |
+| `microsoft/phi-4-mini-reasoning` | Phi-4 Mini Reasoning | B+ | 128k | Reasoning variant |
 | `cohere/command-r` | Cohere Command R | B+ | 128k | RAG-optimized |
-| `cohere/command-r-plus` | Cohere Command R+ | A | 128k | Version avancée |
+| `cohere/command-r-plus` | Cohere Command R+ | A | 128k | Advanced version |
 | `ai21/jamba-1.5-large` | Jamba 1.5 Large | B+ | 256k | MoE, long context |
 
-### Free Low Tier Models (3 nouveaux)
+### Free Low Tier Models (3 new)
 
-| Model ID | Display Name | Tier suggéré | CTX | Notes |
-|----------|-------------|-------------|-----|-------|
-| `cohere/command-r7b` | Cohere Command R7B | B | 128k | Petit modèle RAG |
+| Model ID | Display Name | Suggested Tier | CTX | Notes |
+|----------|-------------|---------------|-----|-------|
+| `cohere/command-r7b` | Cohere Command R7B | B | 128k | Small RAG model |
 | `mistral-ai/mistral-nemo` | Mistral Nemo | B+ | 128k | 12B params |
-| `ai21/jamba-1.5-mini` | Jamba 1.5 Mini | B | 256k | Version mini |
+| `ai21/jamba-1.5-mini` | Jamba 1.5 Mini | B | 256k | Mini version |
 
 ### Premium Models (Copilot Pro+ required — not free)
 
-15 modèles premium sont disponibles mais nécessitent Copilot Pro+ (GPT-5 family, o1/o3/o4-mini, DeepSeek R1, Grok 3, etc.) — **non pertinents pour free-coding-models**.
+15 premium models are available but require Copilot Pro+ (GPT-5 family, o1/o3/o4-mini, DeepSeek R1, Grok 3, etc.) — **not relevant for free-coding-models**.
 
 ---
 
-## 📝 Modifications à appliquer dans sources.js
+## 📝 Changes to apply in sources.js
 
-### CORRIGER
+### FIX
 
 ```javascript
-// AVANT
+// BEFORE
 ['mistral-ai/ministral-3b',                     'Ministral 3B',        'C',  '-',     '32k'],
-// APRÈS
+// AFTER
 ['mistral-ai/ministral-3b',                     'Ministral 3B',        'C',  '-',     '128k'],
 ```
 
-### AJOUTER (recommandé)
+### ADD (recommended)
 
 ```javascript
 // ── S tier ──
@@ -105,5 +105,5 @@
 
 ## Sources
 
-- **GitHub Models API** : `https://models.github.ai/catalog/models` — 41 chat-completion models + 4 embedding models
-- Consulté le 2026-05-26
+- **GitHub Models API**: `https://models.github.ai/catalog/models` — 41 chat-completion models + 4 embedding models
+- Accessed on 2026-05-26

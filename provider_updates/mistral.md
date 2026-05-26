@@ -1,117 +1,117 @@
-# Mistral La Plateforme + Codestral — Audit de validité des modèles
+# Mistral La Plateforme + Codestral — Model Validity Audit
 
-**Date de vérification :** 2026-05-26
-**Source :** docs.mistral.ai / Mistral API / Model Cards / SWE-bench
-
----
-
-## Résumé
-| Stat | Nombre | Détails |
-|------|--------|---------|
-| ✅ Confirmés existants (avec MAJ) | 4 | Tous ont évolué vers de nouvelles versions |
-| 🗑️ Dépréciés — à retirer | 3 | `devstral-medium-latest`, `devstral-small-latest`, `magistral-small-latest` |
-| ❌ Supprimés — à retirer | 0 | Aucun modèle totalement supprimé |
-| ➕ Nouveaux — à ajouter | 4 | Mistral Large 3, Medium 3.5, Small 4, Devstral 2 |
-| ⚠️ À mettre à jour (Codestral) | 1 | `codestral-latest` — contexte réduit 256k→128k |
+**Verification date:** 2026-05-26
+**Source:** docs.mistral.ai / Mistral API / Model Cards / SWE-bench
 
 ---
 
-## 🗑️ Modèles DÉPRÉCIÉS
+## Summary
+| Stat | Count | Details |
+|------|-------|---------|
+| ✅ Confirmed existing (with updates) | 4 | All have evolved to new versions |
+| 🗑️ Deprecated — to remove | 3 | `devstral-medium-latest`, `devstral-small-latest`, `magistral-small-latest` |
+| ❌ Removed — to remove | 0 | No models entirely deleted |
+| ➕ New — to add | 4 | Mistral Large 3, Medium 3.5, Small 4, Devstral 2 |
+| ⚠️ To update (Codestral) | 1 | `codestral-latest` — context reduced 256k→128k |
+
+---
+
+## 🗑️ DEPRECATED Models
 
 ### 1. `devstral-medium-latest` — Devstral Medium
-| Champ | Valeur |
-|-------|--------|
-| Tier actuel | S+ |
+| Field | Value |
+|-------|-------|
+| Current tier | S+ |
 | SWE-bench | 72.2% |
-| **Statut** | 🗑️ **DÉPRÉCIÉ** — retrait le 31/05/2026 |
-| Remplacement | **Devstral 2** (API: `devstral-2512`, 256k ctx) |
-| Action | RETIRER et REMPLACER par Devstral 2 |
+| **Status** | 🗑️ **DEPRECATED** — removal on 31/05/2026 |
+| Replacement | **Devstral 2** (API: `devstral-2512`, 256k ctx) |
+| Action | REMOVE and REPLACE with Devstral 2 |
 
 ### 2. `devstral-small-latest` — Devstral Small
-| Champ | Valeur |
-|-------|--------|
-| Tier actuel | A+ |
-| **Statut** | 🗑️ **DÉPRÉCIÉ** — retrait le 31/05/2026 |
-| Remplacement | **Devstral 2** (API: `devstral-2512`) — unifié, remplace les deux tailles |
-| Action | RETIRER et REMPLACER par Devstral 2 |
+| Field | Value |
+|-------|-------|
+| Current tier | A+ |
+| **Status** | 🗑️ **DEPRECATED** — removal on 31/05/2026 |
+| Replacement | **Devstral 2** (API: `devstral-2512`) — unified, replaces both sizes |
+| Action | REMOVE and REPLACE with Devstral 2 |
 
 ### 3. `magistral-small-latest` — Magistral Small
-| Champ | Valeur |
-|-------|--------|
-| Tier actuel | A |
-| **Statut** | 🗑️ **DÉPRÉCIÉ** — retrait le 31/07/2026 |
-| Remplacement | **Mistral Small 4** (API: `mistral-small-2603`) |
-| Action | RETIRER |
+| Field | Value |
+|-------|-------|
+| Current tier | A |
+| **Status** | 🗑️ **DEPRECATED** — removal on 31/07/2026 |
+| Replacement | **Mistral Small 4** (API: `mistral-small-2603`) |
+| Action | REMOVE |
 
 ---
 
-## ➕ Nouveaux modèles à ajouter
+## ➕ New models to add
 
 ### 1. Mistral Medium 3.5
-| Champ | Valeur |
-|-------|--------|
+| Field | Value |
+|-------|-------|
 | API ID | `mistral-medium-3-5` |
-| Contexte | **256k** |
+| Context | **256k** |
 | SWE-bench Verified | **77.6%** |
-| Spécialité | Optimisé pour agentic & coding |
-| Tier suggéré | **S+** (77.6% SWE-bench > Devstral 2) |
-| Action | REMPLACER `mistral-medium-latest` |
+| Specialty | Optimized for agentic & coding |
+| Suggested tier | **S+** (77.6% SWE-bench > Devstral 2) |
+| Action | REPLACE `mistral-medium-latest` |
 
 ### 2. Devstral 2
-| Champ | Valeur |
-|-------|--------|
+| Field | Value |
+|-------|-------|
 | API ID | `devstral-2512` |
-| Contexte | **256k** |
+| Context | **256k** |
 | SWE-bench Verified | **72.2%** |
 | Architecture | 123B dense |
-| Tier suggéré | **S+** |
-| Action | REMPLACER les entrées `devstral-medium-latest` ET `devstral-small-latest` |
+| Suggested tier | **S+** |
+| Action | REPLACE both `devstral-medium-latest` AND `devstral-small-latest` entries |
 
 ### 3. Mistral Large 3
-| Champ | Valeur |
-|-------|--------|
+| Field | Value |
+|-------|-------|
 | API ID | `mistral-large-2512` |
-| Contexte | 256k |
-| Architecture | MoE 675B total, 41B actif |
-| Tier suggéré | **S+** |
-| Action | Mettre à jour nom + ID de `mistral-large-latest` |
+| Context | 256k |
+| Architecture | MoE 675B total, 41B active |
+| Suggested tier | **S+** |
+| Action | Update name + ID from `mistral-large-latest` |
 
 ### 4. Mistral Small 4
-| Champ | Valeur |
-|-------|--------|
+| Field | Value |
+|-------|-------|
 | API ID | `mistral-small-2603` |
-| Contexte | **256k** |
-| Architecture | 119B total, 6.5B actif (MoE hybride) |
-| Tier suggéré | **A** |
-| Action | Mettre à jour nom + ID + ctx de `mistral-small-latest` |
+| Context | **256k** |
+| Architecture | 119B total, 6.5B active (hybrid MoE) |
+| Suggested tier | **A** |
+| Action | Update name + ID + ctx from `mistral-small-latest` |
 
 ---
 
-## ⚠️ Codestral — Context window RÉDUIT
+## ⚠️ Codestral — REDUCED context window
 
-| Champ | Ancien | Nouveau |
-|-------|--------|---------|
+| Field | Old | New |
+|-------|-----|-----|
 | API ID | `codestral-latest` | `codestral-2508` |
-| Contexte | **256k** | **128k** ⬇️ |
-| Action | METTRE À JOUR | ctx → 128k |
+| Context | **256k** | **128k** ⬇️ |
+| Action | UPDATE | ctx → 128k |
 
 ---
 
-## ✅ Modèles CONFIRMÉS opérationnels
+## ✅ CONFIRMED operational models
 
-| Modèle (dans sources.js) | API ID actuel | Contexte réel | Statut | Action |
+| Model (in sources.js) | Current API ID | Actual context | Status | Action |
 |---|---|---|---|---|
-| mistral-large-latest | `mistral-large-2512` | 256k ✅ | ✅ Actif (Large 3) | màj nom + ID |
-| mistral-medium-latest | `mistral-medium-3-5` | **256k** ⬆️ | ✅ Actif (Medium 3.5) | màj nom + ID + ctx |
-| mistral-small-latest | `mistral-small-2603` | **256k** ⬆️ | ✅ Actif (Small 4) | màj nom + ID + ctx |
-| magistral-medium-latest | `magistral-medium-2509` | 128k ✅ | ✅ Actif (Medium 1.2) | màj nom + ID |
-| codestral-latest | `codestral-2508` | **128k** ⬇️ | ⚠️ Actif, ctx changé | màj ID + ctx |
+| mistral-large-latest | `mistral-large-2512` | 256k ✅ | ✅ Active (Large 3) | update name + ID |
+| mistral-medium-latest | `mistral-medium-3-5` | **256k** ⬆️ | ✅ Active (Medium 3.5) | update name + ID + ctx |
+| mistral-small-latest | `mistral-small-2603` | **256k** ⬆️ | ✅ Active (Small 4) | update name + ID + ctx |
+| magistral-medium-latest | `magistral-medium-2509` | 128k ✅ | ✅ Active (Medium 1.2) | update name + ID |
+| codestral-latest | `codestral-2508` | **128k** ⬇️ | ⚠️ Active, ctx changed | update ID + ctx |
 
 ---
 
-## 📝 Modifications à appliquer dans sources.js
+## 📝 Changes to apply in sources.js
 
-### Mistral provider — RÉSULTAT FINAL
+### Mistral provider — FINAL RESULT
 
 ```javascript
 export const mistral = [
@@ -122,14 +122,14 @@ export const mistral = [
   ['magistral-medium-2509',     'Magistral Medium 1.2','A+', '52.0%', '128k'],
   // ── A tier ──
   ['mistral-small-2603',        'Mistral Small 4',     'A',  '48.0%', '256k'],
-  // 🗑️ Retiré 2026-05-26 (dépréciation Mistral) :
+  // 🗑️ Removed 2026-05-26 (Mistral deprecation):
   // ['devstral-medium-latest',  'Devstral Medium',     'S+', '72.2%', '128k'],
   // ['devstral-small-latest',   'Devstral Small',      'A+', '55.0%', '128k'],
   // ['magistral-small-latest',  'Magistral Small',     'A',  '45.0%', '128k'],
 ]
 ```
 
-### Codestral provider — RÉSULTAT FINAL
+### Codestral provider — FINAL RESULT
 
 ```javascript
 export const codestral = [
@@ -139,13 +139,13 @@ export const codestral = [
 
 ---
 
-## 🔑 Points clés
+## 🔑 Key points
 
-1. **Devstral unifié** : Devstral Medium et Small fusionnés en **Devstral 2** (123B dense, 256k, SWE-bench 72.2%)
-2. **Mistral Medium 3.5 = nouveau roi du coding** : 77.6% SWE-bench, dépasse Devstral 2
-3. **Context windows augmentent** : Tous les nouveaux modèles passent à **256k** (sauf Magistral Medium 128k)
-4. **Codestral contexte réduit** : 256k → 128k pour la version v25.08
-5. **IDs API changent** : Mistral n'utilise plus les alias `-latest`, IDs versionnés avec codes de date
+1. **Unified Devstral**: Devstral Medium and Small merged into **Devstral 2** (123B dense, 256k, SWE-bench 72.2%)
+2. **Mistral Medium 3.5 = new coding king**: 77.6% SWE-bench, surpasses Devstral 2
+3. **Context windows increasing**: All new models now at **256k** (except Magistral Medium 128k)
+4. **Codestral context reduced**: 256k → 128k for the v25.08 version
+5. **API IDs changing**: Mistral no longer uses `-latest` aliases, versioned IDs with date codes
 
 ---
 

@@ -1,100 +1,100 @@
-# Cerebras — Audit de validité des modèles
+# Cerebras — Model Validity Audit
 
-**Date de vérification :** 2026-05-26
-**Source :** https://inference-docs.cerebras.ai/models/overview + individual model pages
+**Verification date:** 2026-05-26
+**Source:** https://inference-docs.cerebras.ai/models/overview + individual model pages
 
 ---
 
-## Résumé
+## Summary
 
-| Stat | Nombre | Détails |
-|------|--------|---------|
-| ✅ Confirmés existants | 2 | `gpt-oss-120b`, `zai-glm-4.7` |
-| 🗑️ Dépréciés — à retirer | 2 | `qwen-3-235b-a22b-instruct-2507`, `llama3.1-8b` (May 27, 2026 = DEMAIN) |
-| ❌ 404 / Supprimés | 0 | — |
-| ➕ Nouveaux — à ajouter | 0 | Aucun nouveau modèle public |
-| ⚠️ Config à corriger | 3 | Context windows incorrects pour 3 modèles |
+| Stat | Count | Details |
+|------|-------|---------|
+| ✅ Confirmed existing | 2 | `gpt-oss-120b`, `zai-glm-4.7` |
+| 🗑️ Deprecated — to remove | 2 | `qwen-3-235b-a22b-instruct-2507`, `llama3.1-8b` (May 27, 2026 = TOMORROW) |
+| ❌ 404 / Removed | 0 | — |
+| ➕ New — to add | 0 | No new public models |
+| ⚠️ Config to fix | 3 | Incorrect context windows for 3 models |
 
-### ⚠️ Note critique : dépréciation imminente
+### ⚠️ Critical note: imminent deprecation
 
 > `llama3.1-8b` and `qwen-3-235b-a22b-instruct-2507` will be deprecated on **May 27, 2026**.
 
-La date d'audit étant le 2026-05-26, ces deux modèles seront **dépréciés demain**. Ils doivent être retirés immédiatement.
+The audit date being 2026-05-26, these two models will be **deprecated tomorrow**. They must be removed immediately.
 
 ---
 
-## 🗑️ Modèles DÉPRÉCIÉS
+## 🗑️ DEPRECATED Models
 
 ### 1. `qwen-3-235b-a22b-instruct-2507` — Qwen3 235B
 
-| Champ | Valeur |
-|-------|--------|
+| Field | Value |
+|-------|-------|
 | Model ID | `qwen-3-235b-a22b-instruct-2507` |
 | Display Name | Qwen3 235B |
-| Tier dans sources.js | `S+` |
-| Statut | 🗑️ **DÉPRÉCIÉ — dépréciation officielle le May 27, 2026** |
-| Remplacement recommandé | Aucun remplacement direct sur le free tier |
-| Action | **Retirer de sources.js** |
+| Tier in sources.js | `S+` |
+| Status | 🗑️ **DEPRECATED — official deprecation on May 27, 2026** |
+| Recommended replacement | No direct replacement on the free tier |
+| Action | **Remove from sources.js** |
 
 ### 2. `llama3.1-8b` — Llama 3.1 8B
 
-| Champ | Valeur |
-|-------|--------|
+| Field | Value |
+|-------|-------|
 | Model ID | `llama3.1-8b` |
 | Display Name | Llama 3.1 8B |
-| Tier dans sources.js | `B` |
-| Statut | 🗑️ **DÉPRÉCIÉ — dépréciation officielle le May 27, 2026** |
-| Remplacement recommandé | Aucun remplacement direct sur le free tier |
-| Remarque | Context réel = 8k (free) / 32k (paid) — le `128k` dans sources.js était **incorrect** |
-| Action | **Retirer de sources.js** |
+| Tier in sources.js | `B` |
+| Status | 🗑️ **DEPRECATED — official deprecation on May 27, 2026** |
+| Recommended replacement | No direct replacement on the free tier |
+| Note | Actual context = 8k (free) / 32k (paid) — the `128k` in sources.js was **incorrect** |
+| Action | **Remove from sources.js** |
 
 ---
 
-## ➕ Nouveaux modèles à ajouter
+## ➕ New models to add
 
-**Aucun nouveau modèle public.** Les modèles additionnels sur Cerebras sont exclusivement disponibles via **Dedicated Endpoints** (payants).
+**No new public models.** Additional models on Cerebras are exclusively available via **Dedicated Endpoints** (paid).
 
 ---
 
-## ✅ Modèles CONFIRMÉS opérationnels
+## ✅ CONFIRMED operational models
 
-| Model ID | Display Name | Tier | Context (Free) | Context (Paid) | Max Output (Free) | Speed | Statut |
+| Model ID | Display Name | Tier | Context (Free) | Context (Paid) | Max Output (Free) | Speed | Status |
 |----------|-------------|------|-----------------|----------------|-------------------|-------|--------|
-| `gpt-oss-120b` | GPT OSS 120B | S | 65k | 131k | 32k | ~3000 tok/s | ✅ Production, rate limits réduits |
-| `zai-glm-4.7` | GLM 4.7 | S+ | 64k | 131k | 40k | ~1000 tok/s | ✅ Preview, rate limits réduits |
+| `gpt-oss-120b` | GPT OSS 120B | S | 65k | 131k | 32k | ~3000 tok/s | ✅ Production, reduced rate limits |
+| `zai-glm-4.7` | GLM 4.7 | S+ | 64k | 131k | 40k | ~1000 tok/s | ✅ Preview, reduced rate limits |
 
 ---
 
-## 📝 Modifications à appliquer dans sources.js
+## 📝 Changes to apply in sources.js
 
-### RETIRER ces lignes (modèles dépréciés le 27 mai 2026) :
+### REMOVE these lines (models deprecated May 27, 2026):
 
 ```javascript
-// ❌ RETIRER — déprécié May 27, 2026
+// ❌ REMOVE — deprecated May 27, 2026
 ['qwen-3-235b-a22b-instruct-2507',       'Qwen3 235B',         'S+', '70.0%', '128k'],
-// ❌ RETIRER — déprécié May 27, 2026
+// ❌ REMOVE — deprecated May 27, 2026
 ['llama3.1-8b',                          'Llama 3.1 8B',       'B',  '28.8%', '128k'],
 ```
 
-### CORRIGER le contexte de ces modèles :
+### FIX the context for these models:
 
 ```javascript
-// AVANT :
+// BEFORE:
 ['gpt-oss-120b',                         'GPT OSS 120B',       'S',  '60.0%', '128k'],
 ['zai-glm-4.7',                          'GLM 4.7',            'S+', '73.8%', '200k'],
 
-// APRÈS :
+// AFTER:
 ['gpt-oss-120b',                         'GPT OSS 120B',       'S',  '60.0%', '131k'],
 ['zai-glm-4.7',                          'GLM 4.7',            'S+', '73.8%', '131k'],
 ```
 
-### Bloc Cerebras final après modifications :
+### Final Cerebras block after changes:
 
 ```javascript
 export const cerebras = [
   ['gpt-oss-120b',                         'GPT OSS 120B',       'S',  '60.0%', '131k'],
   ['zai-glm-4.7',                          'GLM 4.7',            'S+', '73.8%', '131k'],
-  // 🗑️ Retiré 2026-05-26 (dépréciation Cerebras May 27, 2026) :
+  // 🗑️ Removed 2026-05-26 (Cerebras deprecation May 27, 2026):
   // ['llama3.1-8b',                       'Llama 3.1 8B',       'B',  '28.8%', '128k'],
   // ['qwen-3-235b-a22b-instruct-2507',    'Qwen3 235B',         'S+', '70.0%', '128k'],
 ]
@@ -104,5 +104,5 @@ export const cerebras = [
 
 ## Sources
 
-- **Cerebras Models Overview** : [inference-docs.cerebras.ai/models/overview](https://inference-docs.cerebras.ai/models/overview)
-- **GLM 4.7 Migration Guide** : [inference-docs.cerebras.ai/resources/glm-47-migration](https://inference-docs.cerebras.ai/resources/glm-47-migration)
+- **Cerebras Models Overview**: [inference-docs.cerebras.ai/models/overview](https://inference-docs.cerebras.ai/models/overview)
+- **GLM 4.7 Migration Guide**: [inference-docs.cerebras.ai/resources/glm-47-migration](https://inference-docs.cerebras.ai/resources/glm-47-migration)
