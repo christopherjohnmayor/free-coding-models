@@ -117,7 +117,7 @@ import { createTuiState, PING_MODE_INTERVALS, PING_MODE_CYCLE, SPEED_MODE_DURATI
 import { createPingLoop } from './ping-loop.js'
 import { createTuiFilters } from './tui-filters.js'
 import { promptApiKey } from '../src/setup.js'
-import { syncShellEnv, ensureShellRcSource, promptShellEnvMigration, removeShellEnv } from '../src/shell-env.js'
+import { syncShellEnv, ensureShellRcSource, removeShellEnv } from '../src/shell-env.js'
 import { stripAnsi, maskApiKey, displayWidth, padEndDisplay, tintOverlayLines, keepOverlayTargetVisible, sliceOverlayLines, calculateViewport, sortResultsWithPinnedFavorites, adjustScrollOffset } from '../src/render-helpers.js'
 import { renderTable, PROVIDER_COLOR } from '../src/render-table.js'
 import { setOpenCodeModelData, startOpenCode, startOpenCodeDesktop, startOpenCodeWeb } from '../src/opencode.js'
@@ -227,28 +227,6 @@ export async function runApp(cliArgs, config) {
       saveConfig(config)
       syncShellEnv(config)
       ensureShellRcSource()
-    }
-  }
-
-  // 📖 Shell env migration popup for existing users who haven't been asked yet
-  // 📖 Only show when user has keys but shellEnvEnabled is still undefined (never prompted)
-  // 📖 shellEnvPromptSeen flag ensures it only shows ONCE even after adding new keys
-  if (hasAnyKey && config.settings.shellEnvEnabled === undefined && config.settings.shellEnvPromptSeen !== true) {
-    const choice = await promptShellEnvMigration(config)
-    if (!config.settings) config.settings = {}
-    config.settings.shellEnvPromptSeen = true
-    if (choice === 'enable') {
-      config.settings.shellEnvEnabled = true
-      saveConfig(config)
-      syncShellEnv(config)
-      ensureShellRcSource()
-    } else if (choice === 'never') {
-      config.settings.shellEnvEnabled = false
-      saveConfig(config)
-    }
-    if (choice === 'skip') {
-      config.settings.shellEnvEnabled = false
-      saveConfig(config)
     }
   }
 

@@ -784,6 +784,18 @@ export function createKeyHandler(ctx) {
   function toggleShellEnv() {
     if (!state.config.settings) state.config.settings = {}
     const currentlyEnabled = state.config.settings.shellEnvEnabled === true
+    const isUndefined = state.config.settings.shellEnvEnabled === undefined
+
+    if (isUndefined) {
+      // 📖 First-time setup: enable + sync immediately (previously done by startup popup)
+      state.config.settings.shellEnvEnabled = true
+      saveConfig(state.config)
+      syncShellEnv(state.config)
+      ensureShellRcSource()
+      trackAppAction('shell_env_export_toggled', { enabled: true })
+      return
+    }
+
     state.config.settings.shellEnvEnabled = !currentlyEnabled
     saveConfig(state.config)
     if (!currentlyEnabled) {

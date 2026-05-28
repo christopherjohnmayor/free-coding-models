@@ -274,10 +274,12 @@ export function createOverlayRenderers(state, deps) {
     lines.push(state.settingsCursor === changelogViewRowIdx ? themeColors.bgCursorSettingsList(changelogViewRow) : changelogViewRow)
 
     // 📖 Shell env toggle — expose API keys as shell environment variables
-    const shellEnvEnabled = state.config.settings?.shellEnvEnabled === true
-    const shellEnvStatus = shellEnvEnabled
+    const shellEnvSetting = state.config.settings?.shellEnvEnabled
+    const shellEnvStatus = shellEnvSetting === true
       ? themeColors.successBold('✅ Enabled — keys available in shell')
-      : themeColors.dim('❌ Disabled')
+      : shellEnvSetting === false
+        ? themeColors.dim('❌ Disabled')
+        : themeColors.warning('🔘 Not configured — Enter to set up')
     const shellEnvRow = `${bullet(state.settingsCursor === shellEnvRowIdx)}${themeColors.textBold('Shell Env Export').padEnd(44)} ${shellEnvStatus}`
     cursorLineByRow[shellEnvRowIdx] = lines.length
     lines.push(state.settingsCursor === shellEnvRowIdx ? themeColors.bgCursorSettingsList(shellEnvRow) : shellEnvRow)
