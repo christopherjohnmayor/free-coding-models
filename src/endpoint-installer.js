@@ -48,8 +48,10 @@ import { getApiKey, saveConfig } from './config.js'
 import { ENV_VAR_NAMES, PROVIDER_METADATA } from './provider-metadata.js'
 import { getToolMeta } from './tool-metadata.js'
 
-// 📖 CLI-only providers (rovo, gemini) and Zen-only (opencode-zen) cannot be installed into other tools.
-const DIRECT_INSTALL_UNSUPPORTED_PROVIDERS = new Set(['replicate', 'zai', 'rovo', 'gemini', 'opencode-zen'])
+// 📖 CLI-only providers (rovo, gemini) cannot be installed into other tools — they manage their own auth.
+// 📖 replicate uses /v1/predictions (not /chat/completions), so it's not OpenAI-compatible.
+// 📖 zai and opencode-zen ARE OpenAI-compatible and CAN be installed into any tool.
+const DIRECT_INSTALL_UNSUPPORTED_PROVIDERS = new Set(['replicate', 'rovo', 'gemini'])
 // 📖 Install Endpoints only lists tools whose persisted config shape is actually supported here.
 // 📖 Claude Code, Codex, and Gemini stay out while their dedicated bridges are being rebuilt.
 const INSTALL_TARGET_MODES = ['opencode', 'opencode-desktop', 'opencode-web', 'openclaw', 'kilo', 'crush', 'goose', 'pi', 'aider', 'qwen', 'openhands', 'amp', 'hermes', 'continue', 'cline', 'forgecode', 'fcm_router']
