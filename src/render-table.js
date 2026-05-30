@@ -91,8 +91,8 @@ const COLUMN_SORT_MAP = {
   verdict: 'verdict',
   stability: 'stability',
   uptime: 'uptime',
-  aiLatency: null,
-  tps: null,
+  aiLatency: 'aiLatency',
+  tps: 'tps',
 }
 export { COLUMN_SORT_MAP }
 
@@ -852,25 +852,25 @@ export function renderTable({
     const usageCell = ''
 
     // 📖 AI Latency + TPS columns — same benchmark result, split into two readable metrics.
+    // 📖 Benchmark results are shown regardless of health status (up/timeout/down/429/noauth).
+    // 📖 If no benchmark has been run yet, fallback to health status display for latency.
     const benchmarkKey = `${r.providerKey}/${r.modelId}`
     const benchmarkResult = benchmarkResults[benchmarkKey]
     const isBenchmarkRunning = benchmarkRunning.has(benchmarkKey)
-    const healthIsGood = r.status === 'up'
-    const latencyText = healthIsGood
+    const hasBenchmark = benchmarkResult || isBenchmarkRunning
+    const latencyText = hasBenchmark
       ? formatBenchmarkLatency(benchmarkResult, { running: isBenchmarkRunning, frame })
       : statusDisplayText
-    const tpsText = healthIsGood
+    const tpsText = hasBenchmark
       ? formatBenchmarkTps(benchmarkResult, { running: isBenchmarkRunning, frame })
       : '—'
-    const benchmarkIsError = healthIsGood && benchmarkResult && !benchmarkResult.ok
-    const latencyCell = !healthIsGood
+    const benchmarkIsError = benchmarkResult && !benchmarkResult.ok
+    const latencyCell = !hasBenchmark
       ? statusColor(padEndDisplay(latencyText, wAiLatency))
       : benchmarkIsError
         ? themeColors.metricBad(latencyText.padEnd(wAiLatency))
-        : benchmarkResult || isBenchmarkRunning
-          ? themeColors.metricGood(latencyText.padEnd(wAiLatency))
-          : themeColors.dim(latencyText.padEnd(wAiLatency))
-    const tpsCell = healthIsGood && (benchmarkResult?.ok || isBenchmarkRunning)
+        : themeColors.metricGood(latencyText.padEnd(wAiLatency))
+    const tpsCell = hasBenchmark && (benchmarkResult?.ok || isBenchmarkRunning)
       ? themeColors.metricGood(tpsText.padEnd(W_TPS))
       : themeColors.dim(tpsText.padEnd(W_TPS))
 

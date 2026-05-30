@@ -1052,7 +1052,8 @@ export function createKeyHandler(ctx) {
 
     const apiKey = getApiKey(state.config, selected.providerKey) ?? null
     const providerUrl = sources[selected.providerKey]?.url ?? null
-    if (!providerUrl) return
+    // 📖 No skip on missing URL — let benchmarkModel handle it. The whole point of Ctrl+A
+    // 📖 is to test models even when they're timeout, 429, down, or misconfigured.
 
     state.benchmarkRunning.add(benchmarkKey)
 
