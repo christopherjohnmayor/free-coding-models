@@ -1100,7 +1100,11 @@ export function createKeyHandler(ctx) {
     if (state.globalBenchmarkRunning) return
     state.globalBenchmarkRunning = true
 
-    const models = state.visibleSorted
+    // 📖 Use state.results (ALL models) instead of state.visibleSorted so the benchmark
+    // 📖 runs on every model regardless of TUI filters (configured-only, usable-only, tier,
+    // 📖 health, etc.). The whole point of Ctrl+U is to get real latency/TPS data even on
+    // 📖 models that are timeout, down, 429, noauth — zero filtering.
+    const models = state.results
     const total = models.length
     state.globalBenchmarkTotal = total
     state.globalBenchmarkCompleted = 0
@@ -1115,10 +1119,6 @@ export function createKeyHandler(ctx) {
 
       const apiKey = getApiKey(state.config, model.providerKey) ?? null
       const providerUrl = sources[model.providerKey]?.url ?? null
-      if (!providerUrl) {
-        state.globalBenchmarkCompleted++
-        return { skipped: true }
-      }
 
       state.benchmarkRunning.add(benchmarkKey)
       try {
