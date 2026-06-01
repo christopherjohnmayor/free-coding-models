@@ -84,6 +84,12 @@ jobs:
       - name: Verify pnpm version
         run: pnpm --version
 
+      # 📖 QEMU is required for cross-platform builds (e.g. building ARM64
+      # 📖 images on an AMD64 GitHub runner). Without it, buildx can only
+      # 📖 build the native architecture of the runner.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -139,7 +145,11 @@ jobs:
           push: ${{ github.event_name == 'release' || github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.test_mode != 'true') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64
+          # 📖 Multi-platform: amd64 (x86_64) + arm64 (Apple Silicon, AWS
+          # 📖 Graviton, Raspberry Pi 4+). QEMU handles cross-compilation.
+          # 📖 In test_mode (load=true) we only build the runner's native
+          # 📖 arch because `load` doesn't support multi-platform manifests.
+          platforms: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.test_mode == 'true') && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
           no-cache: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_mode == 'true' }}
           load: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_mode == 'true' }}
         env:
