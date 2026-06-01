@@ -136,6 +136,7 @@ export const PROVIDER_COLOR = new Proxy({}, {
  *   settingsUpdateLatestVersion: string|null,
  *   startupLatestVersion: string|null,
  *   versionAlertsEnabled: boolean,
+ *   updateWarningMessage?: string|null,
  *   favoritesPinnedAndSticky: boolean,
  *   customTextFilter: string|null,
  *   lastReleaseDate: string|null,
@@ -174,6 +175,7 @@ export function renderTable({
   settingsUpdateLatestVersion = null,
   startupLatestVersion = null,
   versionAlertsEnabled = true,
+  updateWarningMessage = null,
   favoritesPinnedAndSticky = false,
   customTextFilter = null,
   lastReleaseDate = null,
@@ -1073,15 +1075,19 @@ export function renderTable({
   )
 
   if (versionStatus.isOutdated) {
-    const updateMsg = `  🚀⬆️ UPDATE AVAILABLE — v${LOCAL_VERSION} → v${versionStatus.latestVersion}  •  Click here or press Shift+U to update  🚀⬆️  `
+    const updateMsg = updateWarningMessage
+      ? `  ${updateWarningMessage}  •  Press Shift+U to retry update  `
+      : `  🚀⬆️ UPDATE AVAILABLE — v${LOCAL_VERSION} → v${versionStatus.latestVersion}  •  Click here or press Shift+U to update  🚀⬆️  `
     const paddedBanner = terminalCols > 0
       ? updateMsg + ' '.repeat(Math.max(0, terminalCols - displayWidth(updateMsg)))
       : updateMsg
-    const fluoGreenBanner = chalk.bgRgb(57, 255, 20).rgb(0, 0, 0).bold(paddedBanner)
+    const updateBanner = updateWarningMessage
+      ? chalk.bgRed.white.bold(paddedBanner)
+      : chalk.bgRgb(57, 255, 20).rgb(0, 0, 0).bold(paddedBanner)
     const updateBannerRow = lines.length + 1
     _lastLayout.updateBannerRow = updateBannerRow
     footerHotkeys.push({ key: 'update-click', row: updateBannerRow, xStart: 1, xEnd: Math.max(terminalCols, displayWidth(updateMsg)) })
-    lines.push(fluoGreenBanner)
+    lines.push(updateBanner)
   } else {
     _lastLayout.updateBannerRow = 0
   }

@@ -11,11 +11,12 @@ if (process.argv.includes('--dev')) {
 
 import chalk from 'chalk';
 import { parseArgs, TIER_LETTER_MAP } from '../src/core/utils.js';
-import { loadConfig } from '../src/core/config.js';
+import { loadConfig, saveConfig } from '../src/core/config.js';
 import { ensureTelemetryConfig } from '../src/core/telemetry.js';
 import { ensureFavoritesConfig } from '../src/core/favorites.js';
 import { buildCliHelpText } from '../src/tui/cli-help.js';
 import { ALT_LEAVE } from '../src/core/constants.js';
+import { enforceMandatoryStartupUpdate, isPackageDevMode } from '../src/core/updater.js';
 import { runApp } from '../src/tui/app.js';
 
 // Global error handlers to ensure terminal is restored if something crashes catastrophically
@@ -53,13 +54,32 @@ async function main() {
     process.exit(0);
   }
 
+  // Load JSON config before operational modes so the mandatory update policy can
+  // 📖 persist failure counters for TUI, Web Dashboard, Docker daemon, and Desktop sidecar launches.
+  const config = loadConfig();
+  ensureTelemetryConfig(config);
+  ensureFavoritesConfig(config);
+
+  const isDevMode = isPackageDevMode();
+  const shouldEnforceUpdate = !cliArgs.daemonStopMode && !cliArgs.daemonStatusMode;
+  const startupUpdate = shouldEnforceUpdate
+    ? await enforceMandatoryStartupUpdate(config, {
+      saveConfig,
+      isDevMode,
+      surface: cliArgs.webMode ? 'web dashboard' : cliArgs.daemonMode ? 'router daemon' : 'TUI',
+    })
+    : { latestVersion: null, allowedOutdated: false, warningMessage: null, failures: 0, checked: false, updated: false, blocked: false };
+
+  if (startupUpdate.updated) return;
+  if (startupUpdate.blocked) process.exit(1);
+
   // 📖 Standalone web dashboard: same full-catalog ping UI as the TUI, served
   // 📖 locally with Socket.IO/SSE/REST realtime updates.
   if (cliArgs.webMode) {
     const { startWebServer } = await import('../web/server.js');
     const parsedPort = Number.parseInt(process.env.FCM_WEB_PORT || process.env.FCM_PORT || '3333', 10);
     const port = Number.isFinite(parsedPort) && parsedPort > 0 ? parsedPort : 3333;
-    await startWebServer(port, { open: true, startPingLoop: true });
+    await startWebServer(port, { open: true, startPingLoop: true, updateStatus: startupUpdate });
     return;
   }
 
@@ -102,12 +122,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Load JSON config
-  const config = loadConfig();
-  ensureTelemetryConfig(config);
-  ensureFavoritesConfig(config);
-
-  await runApp(cliArgs, config);
+  await runApp(cliArgs, config, { startupUpdate, isDevMode });
 }
 
 main().catch((err) => {

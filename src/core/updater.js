@@ -32,22 +32,29 @@
  *   → getManualInstallCmd(pm, version)   — Human-readable install command string for error messages
  *   → checkForUpdateDetailed()           — Fetch npm latest with explicit error info
  *   → checkForUpdate()                   — Startup wrapper, returns version string or null
+ *   → isPackageDevMode()                 — Detect git/dev checkouts that must not self-update
+ *   → enforceMandatoryStartupUpdate()    — Mandatory startup self-update with two-failure fallback
  *   → runUpdate(latestVersion)           — Install new version via detected PM + relaunch
  * @exports
  *   detectPackageManager, getInstallArgs, getManualInstallCmd,
- *   checkForUpdateDetailed, checkForUpdate, runUpdate, fetchLastReleaseDate
+ *   checkForUpdateDetailed, checkForUpdate, isPackageDevMode,
+ *   enforceMandatoryStartupUpdate, runUpdate, fetchLastReleaseDate
  *
  * @see bin/free-coding-models.js — calls checkForUpdate() at startup and runUpdate() on confirm
  */
 
 import chalk from 'chalk'
 import { createRequire } from 'module'
-import { accessSync, constants } from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+import { accessSync, constants, existsSync } from 'fs'
 
 const require = createRequire(import.meta.url)
 const readline = require('readline')
 const pkg = require('../../package.json')
 const LOCAL_VERSION = pkg.version
+const PACKAGE_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
+export const UPDATE_FAILURE_THRESHOLD = 2
 
 /**
  * 📖 detectPackageManager: figure out which package manager owns the current installation.
@@ -63,6 +70,70 @@ export function detectPackageManager() {
   if (combined.includes('pnpm')) return 'pnpm'
   if (combined.includes('yarn')) return 'yarn'
   return 'npm'
+}
+
+/**
+ * 📖 isPackageDevMode: true for repo checkouts and explicit --dev runs.
+ * 📖 Self-updating a git checkout creates noisy loops during local development,
+ * 📖 while published npm installs do not ship a .git directory and can update safely.
+ * @returns {boolean}
+ */
+export function isPackageDevMode() {
+  return process.env.FCM_DEV === '1' || existsSync(join(PACKAGE_ROOT, '.git'))
+}
+
+/**
+ * 📖 getUpdateInstallFailureCount: sanitized persistent failure counter.
+ * @param {object} config
+ * @returns {number}
+ */
+export function getUpdateInstallFailureCount(config) {
+  const raw = Number(config?.settings?.updateInstallFailures || 0)
+  if (!Number.isFinite(raw) || raw < 0) return 0
+  return Math.floor(raw)
+}
+
+function ensureUpdateSettings(config) {
+  if (!config.settings || typeof config.settings !== 'object') config.settings = {}
+  return config.settings
+}
+
+function persistUpdateSettings(config, saveConfig) {
+  if (typeof saveConfig !== 'function') return
+  try { saveConfig(config) } catch {}
+}
+
+function resetUpdateInstallFailures(config, saveConfig) {
+  const settings = ensureUpdateSettings(config)
+  if (!settings.updateInstallFailures && !settings.updateLastFailureAt && !settings.updateLastFailureMessage) return
+  settings.updateInstallFailures = 0
+  delete settings.updateLastFailureAt
+  delete settings.updateLastFailureMessage
+  delete settings.updateInstallFailureVersion
+  persistUpdateSettings(config, saveConfig)
+}
+
+function recordUpdateInstallFailure(config, latestVersion, error, saveConfig) {
+  const settings = ensureUpdateSettings(config)
+  const nextFailures = Math.min(getUpdateInstallFailureCount(config) + 1, UPDATE_FAILURE_THRESHOLD)
+  settings.updateInstallFailures = nextFailures
+  settings.updateInstallFailureVersion = latestVersion
+  settings.updateLastFailureAt = new Date().toISOString()
+  settings.updateLastFailureMessage = error instanceof Error ? error.message : String(error || 'Unknown update error')
+  persistUpdateSettings(config, saveConfig)
+  return nextFailures
+}
+
+/**
+ * 📖 buildOutdatedWarningMessage: one-line message shown when mandatory updates
+ * 📖 failed twice and FCM must let the UI start instead of trapping the user.
+ * @param {string|null} latestVersion
+ * @param {number} failures
+ * @returns {string}
+ */
+export function buildOutdatedWarningMessage(latestVersion, failures = UPDATE_FAILURE_THRESHOLD) {
+  const target = latestVersion ? `v${LOCAL_VERSION} → v${latestVersion}` : `v${LOCAL_VERSION}`
+  return `⚠️ OUTDATED VERSION (${target}) — automatic update failed ${failures} times. Models and free quotas change often; update as soon as possible for the freshest catalog.`
 }
 
 /**
@@ -118,6 +189,89 @@ export async function checkForUpdateDetailed() {
 export async function checkForUpdate() {
   const { latestVersion } = await checkForUpdateDetailed()
   return latestVersion
+}
+
+/**
+ * 📖 enforceMandatoryStartupUpdate: startup policy for every user-facing surface.
+ * 📖 If npm has a newer release, FCM installs it immediately without asking.
+ * 📖 The first failed install blocks startup so the next launch retries. After two
+ * 📖 consecutive install failures, startup is allowed with a loud outdated warning
+ * 📖 so offline/proxy/permission users are not permanently locked out.
+ *
+ * @param {object} config
+ * @param {{ saveConfig?: Function, isDevMode?: boolean, surface?: string }} [options]
+ * @returns {Promise<{ latestVersion: string|null, allowedOutdated: boolean, warningMessage: string|null, failures: number, checked: boolean, updated: boolean, blocked: boolean }>}
+ */
+export async function enforceMandatoryStartupUpdate(config, options = {}) {
+  const { saveConfig, surface = 'app' } = options
+  const devMode = typeof options.isDevMode === 'boolean' ? options.isDevMode : isPackageDevMode()
+  const base = {
+    latestVersion: null,
+    allowedOutdated: false,
+    warningMessage: null,
+    failures: getUpdateInstallFailureCount(config),
+    checked: false,
+    updated: false,
+    blocked: false,
+  }
+
+  if (devMode) return base
+
+  const { latestVersion, error } = await checkForUpdateDetailed()
+  base.checked = true
+
+  if (error) {
+    const settings = ensureUpdateSettings(config)
+    settings.updateCheckFailures = Math.min(Number(settings.updateCheckFailures || 0) + 1, UPDATE_FAILURE_THRESHOLD)
+    persistUpdateSettings(config, saveConfig)
+    return base
+  }
+
+  const settings = ensureUpdateSettings(config)
+  if (settings.updateCheckFailures) {
+    settings.updateCheckFailures = 0
+    persistUpdateSettings(config, saveConfig)
+  }
+
+  if (!latestVersion) {
+    resetUpdateInstallFailures(config, saveConfig)
+    return base
+  }
+
+  base.latestVersion = latestVersion
+  const failuresBeforeInstall = getUpdateInstallFailureCount(config)
+  if (failuresBeforeInstall >= UPDATE_FAILURE_THRESHOLD) {
+    base.allowedOutdated = true
+    base.failures = failuresBeforeInstall
+    base.warningMessage = buildOutdatedWarningMessage(latestVersion, failuresBeforeInstall)
+    return base
+  }
+
+  console.log(chalk.dim(`  ⬆ New version v${latestVersion} detected for ${surface}; updating automatically...`))
+  const updateResult = runUpdate(latestVersion, { exitOnFailure: false })
+  if (updateResult?.ok) {
+    resetUpdateInstallFailures(config, saveConfig)
+    base.updated = true
+    return base
+  }
+
+  const failures = recordUpdateInstallFailure(config, latestVersion, updateResult?.error, saveConfig)
+  base.failures = failures
+
+  if (failures >= UPDATE_FAILURE_THRESHOLD) {
+    base.allowedOutdated = true
+    base.warningMessage = buildOutdatedWarningMessage(latestVersion, failures)
+    console.log(chalk.red(`  ${base.warningMessage}`))
+    console.log(chalk.dim(`  Manual update: ${getManualInstallCmd(detectPackageManager(), latestVersion)}`))
+    console.log()
+    return base
+  }
+
+  base.blocked = true
+  console.log(chalk.red('  ✖ Mandatory update failed. FCM will retry on the next launch.'))
+  console.log(chalk.dim(`  Attempt ${failures}/${UPDATE_FAILURE_THRESHOLD}. Manual update: ${getManualInstallCmd(detectPackageManager(), latestVersion)}`))
+  console.log()
+  return base
 }
 
 /**
@@ -265,10 +419,15 @@ function installUpdateCommand(latestVersion, useSudo) {
 /**
  * 📖 runUpdate: Run npm global install to update to latestVersion.
  * 📖 Retries with sudo on permission errors.
- * 📖 Relaunches the process on success, exits with code 1 on failure.
+ * 📖 Relaunches the process on success. Manual update actions keep the historic
+ * 📖 behavior and exit on failure; mandatory startup checks pass exitOnFailure=false
+ * 📖 so they can persist failure counters and decide whether to let the UI start.
  * @param {string} latestVersion
+ * @param {{ exitOnFailure?: boolean, relaunchOnSuccess?: boolean }} [options]
+ * @returns {{ ok: boolean, error?: unknown }}
  */
-export function runUpdate(latestVersion) {
+export function runUpdate(latestVersion, options = {}) {
+  const { exitOnFailure = true, relaunchOnSuccess = true } = options
   console.log()
   console.log(chalk.bold.cyan('  ⬆ Updating free-coding-models to v' + latestVersion + '...'))
   console.log()
@@ -276,6 +435,7 @@ export function runUpdate(latestVersion) {
   const pm = detectPackageManager()
   const { needsSudo, checkedPath } = detectGlobalInstallPermission(pm)
   const sudoAvailable = process.platform !== 'win32' && hasSudoCommand()
+  let lastError = null
 
   if (needsSudo && checkedPath && sudoAvailable) {
     console.log(chalk.yellow(`  ⚠ Global ${pm} path is not writable: ${checkedPath}`))
@@ -288,9 +448,10 @@ export function runUpdate(latestVersion) {
     console.log()
     console.log(chalk.green(`  ✅ Update complete! Version ${latestVersion} installed.`))
     console.log()
-    relaunchCurrentProcess()
-    return
+    if (relaunchOnSuccess) relaunchCurrentProcess()
+    return { ok: true }
   } catch (err) {
+    lastError = err
     const manualCmd = getManualInstallCmd(pm, latestVersion)
     console.log()
     if (isPermissionError(err) && !needsSudo && sudoAvailable) {
@@ -301,9 +462,10 @@ export function runUpdate(latestVersion) {
         console.log()
         console.log(chalk.green(`  ✅ Update complete with sudo! Version ${latestVersion} installed.`))
         console.log()
-        relaunchCurrentProcess()
-        return
-      } catch {
+        if (relaunchOnSuccess) relaunchCurrentProcess()
+        return { ok: true }
+      } catch (sudoErr) {
+        lastError = sudoErr
         console.log()
         console.log(chalk.red('  ✖ Update failed even with sudo. Try manually:'))
         console.log(chalk.dim(`    sudo ${manualCmd}`))
@@ -318,7 +480,9 @@ export function runUpdate(latestVersion) {
       console.log()
     }
   }
-  process.exit(1)
+
+  if (exitOnFailure) process.exit(1)
+  return { ok: false, error: lastError }
 }
 
 

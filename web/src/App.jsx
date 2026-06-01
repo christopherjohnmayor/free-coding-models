@@ -48,7 +48,7 @@ const VIEW_TO_NAV = {
 }
 
 export default function App() {
-  const { models, connected, nextPingAt, isPinging, pingMode, globalBenchmarkRunning, globalBenchmarkTotal, globalBenchmarkCompleted } = useSocket()
+  const { models, connected, nextPingAt, isPinging, pingMode, globalBenchmarkRunning, globalBenchmarkTotal, globalBenchmarkCompleted, updateStatus } = useSocket()
   const { theme, cycle: cycleTheme } = useTheme()
   const [currentView, setCurrentView] = useState('dashboard')
   const [selectedModel, setSelectedModel] = useState(null)
@@ -224,6 +224,12 @@ export default function App() {
           theme={theme}
           onToast={addToast}
         />
+
+        {updateStatus?.warningMessage && (
+          <div className="update-warning-banner" role="alert">
+            {updateStatus.warningMessage} — restart or run npm install -g free-coding-models@latest when your network/permissions are fixed.
+          </div>
+        )}
 
         <div className="app-content">
           {currentView === 'dashboard' && (

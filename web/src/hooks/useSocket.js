@@ -42,6 +42,7 @@ export function useSocket(serverUrl = '') {
   const [globalBenchmarkRunning, setGlobalBenchmarkRunning] = useState(false)
   const [globalBenchmarkTotal, setGlobalBenchmarkTotal] = useState(0)
   const [globalBenchmarkCompleted, setGlobalBenchmarkCompleted] = useState(0)
+  const [updateStatus, setUpdateStatus] = useState(null)
 
   const socketRef = useRef(null)
   const esRef = useRef(null)
@@ -62,6 +63,7 @@ export function useSocket(serverUrl = '') {
     setGlobalBenchmarkRunning(Boolean(data.globalBenchmarkRunning))
     setGlobalBenchmarkTotal(Number.isFinite(data.globalBenchmarkTotal) ? data.globalBenchmarkTotal : 0)
     setGlobalBenchmarkCompleted(Number.isFinite(data.globalBenchmarkCompleted) ? data.globalBenchmarkCompleted : 0)
+    setUpdateStatus(data.updateStatus && data.updateStatus.allowedOutdated ? data.updateStatus : null)
     setUpdateCount((count) => count + 1)
     lastUpdateRef.current = Date.now()
     if (source !== 'poll') {
@@ -196,5 +198,6 @@ export function useSocket(serverUrl = '') {
     globalBenchmarkRunning,
     globalBenchmarkTotal,
     globalBenchmarkCompleted,
+    updateStatus,
   }
 }

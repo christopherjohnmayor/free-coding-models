@@ -77,6 +77,7 @@ const runtime = {
   globalBenchmarkRunning: false,
   globalBenchmarkTotal: 0,
   globalBenchmarkCompleted: 0,
+  updateStatus: null,
 }
 
 const results = MODELS.map(([modelId, label, tier, sweScore, ctx, providerKey], idx) => ({
@@ -286,6 +287,7 @@ function getModelsPayload() {
     globalBenchmarkRunning: runtime.globalBenchmarkRunning,
     globalBenchmarkTotal: runtime.globalBenchmarkTotal,
     globalBenchmarkCompleted: runtime.globalBenchmarkCompleted,
+    updateStatus: runtime.updateStatus,
     models: results.map(serializeModel),
   }
 }
@@ -830,7 +832,16 @@ function openBrowser(url) {
   })
 }
 
-export async function startWebServer(port = DEFAULT_WEB_PORT, { open = true, startPingLoop = true } = {}) {
+export async function startWebServer(port = DEFAULT_WEB_PORT, { open = true, startPingLoop = true, updateStatus = null } = {}) {
+  runtime.updateStatus = updateStatus && updateStatus.allowedOutdated
+    ? {
+      latestVersion: updateStatus.latestVersion || null,
+      allowedOutdated: true,
+      warningMessage: updateStatus.warningMessage || null,
+      failures: updateStatus.failures || 0,
+    }
+    : null
+
   const portStatus = await inspectExistingWebServer(port)
 
   if (portStatus.inUse && portStatus.isFcm) {

@@ -55,7 +55,7 @@ import { createOverlayRenderers } from '../src/tui/overlays.js'
 import { buildProviderModelsUrl, parseProviderModelIds, listProviderTestModels, classifyProviderTestOutcome, buildProviderTestDetail } from '../src/tui/key-handler.js'
 import { buildCliHelpText } from '../src/tui/cli-help.js'
 import { buildSyncCandidates } from '../src/core/sync-set.js'
-import { detectPackageManager, getInstallArgs, getManualInstallCmd } from '../src/core/updater.js'
+import { detectPackageManager, getInstallArgs, getManualInstallCmd, buildOutdatedWarningMessage } from '../src/core/updater.js'
 import {
   buildToolEnv,
   prepareExternalToolLaunch,
@@ -1329,6 +1329,18 @@ describe('renderTable outdated footer banner', () => {
     const output = renderTable({ results, pendingPings: 0, frame: 0, sortColumn: 'avg', sortDirection: 'asc', pingInterval: 10_000, lastPingTime: Date.now(), mode: 'opencode', terminalRows: 20, terminalCols: 190 })
 
     assert.doesNotMatch(output, /UPDATE AVAILABLE/)
+  })
+
+  it('renders a red mandatory-update fallback warning after repeated install failures', () => {
+    const results = [
+      mockResult({ providerKey: 'nvidia', totalTokens: 0 }),
+    ]
+    const warning = buildOutdatedWarningMessage('9.9.9', 2)
+    const output = renderTable({ results, sortColumn: 'avg', sortDirection: 'asc', pingInterval: 10_000, lastPingTime: Date.now(), mode: 'opencode', terminalRows: 20, terminalCols: 190, pingMode: 'normal', pingModeSource: 'auto', settingsUpdateState: 'idle', startupLatestVersion: '9.9.9', versionAlertsEnabled: true, updateWarningMessage: warning })
+
+    assert.match(output, /OUTDATED VERSION/)
+    assert.match(output, /automatic update failed 2 times/)
+    assert.match(output, /Press Shift\+U to retry update/)
   })
 
   it('shows the active custom text filter badge on its own footer line', () => {

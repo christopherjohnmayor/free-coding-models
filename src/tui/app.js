@@ -91,11 +91,7 @@
 
 import chalk from 'chalk'
 import { createRequire } from 'module'
-import { fileURLToPath } from 'url'
-import { readFileSync, writeFileSync, existsSync, copyFileSync, mkdirSync } from 'fs'
 import { randomUUID } from 'crypto'
-import { homedir } from 'os'
-import { join, dirname } from 'path'
 import { MODELS, sources } from '../../sources.js'
 import { getAvg, getVerdict, getUptime, getP95, getJitter, getStabilityScore, sortResults, filterByTier, findBestModel, parseArgs, TIER_ORDER, VERDICT_ORDER, TIER_LETTER_MAP, scoreModelForTask, getTopRecommendations, TASK_TYPES, PRIORITY_TYPES, CONTEXT_BUDGETS, formatCtxWindow, labelFromId, formatResultsAsJSON } from '../core/utils.js'
 import { loadConfig, saveConfig, getApiKey, resolveApiKeys, addApiKey, removeApiKey, isProviderEnabled, persistApiKeysForProvider } from '../core/config.js'
@@ -181,7 +177,7 @@ const LOCAL_VERSION = pkg.version
 // ─── OpenCode integration ──────────────────────────────────────────────────────
 // 📖 OpenCode helpers are imported from ../src/opencode.js
 
-export async function runApp(cliArgs, config) {
+export async function runApp(cliArgs, config, startupOptions = {}) {
 
   // 📖 Detect user active terminal theme
   detectActiveTheme(config.settings?.theme || 'auto')
@@ -278,32 +274,12 @@ export async function runApp(cliArgs, config) {
     },
   })
 
-  // 📖 Auto-update detection: check npm registry for new versions at startup.
-  // 📖 If a new version is available, show an interactive prompt (Update / Changelogs / Skip).
-  // 📖 Dev mode (git checkout) skips auto-update to avoid infinite relaunch loops.
-  let latestVersion = null
-  const isDevMode = existsSync(join(dirname(fileURLToPath(import.meta.url)), '..', '.git'))
-  try {
-    latestVersion = await checkForUpdate()
-    // 📖 Reset failure counter on successful check
-    if (config.settings?.updateCheckFailures) {
-      config.settings.updateCheckFailures = 0
-      saveConfig(config)
-    }
-  } catch (err) {
-    const failures = (config.settings?.updateCheckFailures || 0) + 1
-    if (!config.settings) config.settings = {}
-    config.settings.updateCheckFailures = Math.min(failures, 3)
-    saveConfig(config)
-  }
-
-  // 📖 Auto-update: if a new version is available, install it immediately (skip in dev mode)
-  // 📖 runUpdate() will relaunch the process with the new version after install completes
-  if (latestVersion && !isDevMode) {
-    console.log(chalk.dim(`  ⬆ New version v${latestVersion} detected, updating...`))
-    runUpdate(latestVersion)
-    return // 📖 runUpdate relaunches the process — this line is a safety guard
-  }
+  // 📖 Mandatory startup update is enforced in the bin entry before any user-facing
+  // 📖 surface starts. runApp receives the result so the TUI can display the
+  // 📖 two-failure fallback warning without repeating npm registry/install work.
+  const startupUpdate = startupOptions.startupUpdate || {}
+  const latestVersion = startupUpdate.latestVersion || null
+  const isDevMode = startupOptions.isDevMode === true
 
   // 📖 Dynamic OpenRouter free model discovery — fetch live free models from API
   // 📖 Replaces static openrouter entries in MODELS with fresh data.
@@ -363,6 +339,8 @@ export async function runApp(cliArgs, config) {
     sessionId,
     latestVersion,
     isDevMode,
+    updateWarningMessage: startupUpdate.warningMessage || null,
+    updateInstallFailures: startupUpdate.failures || 0,
   })
 
   // 📖 Apply the pre-fetched last release date now that state is initialized
@@ -823,6 +801,7 @@ export async function runApp(cliArgs, config) {
       settingsUpdateLatestVersion: state.settingsUpdateLatestVersion,
       startupLatestVersion: state.startupLatestVersion,
       versionAlertsEnabled: state.versionAlertsEnabled,
+      updateWarningMessage: state.updateWarningMessage,
       favoritesPinnedAndSticky: state.favoritesPinnedAndSticky,
       customTextFilter: state.customTextFilter,
       lastReleaseDate: state.lastReleaseDate,
@@ -914,6 +893,7 @@ export async function runApp(cliArgs, config) {
     settingsUpdateLatestVersion: state.settingsUpdateLatestVersion,
     startupLatestVersion: state.startupLatestVersion,
     versionAlertsEnabled: state.versionAlertsEnabled,
+    updateWarningMessage: state.updateWarningMessage,
     favoritesPinnedAndSticky: state.favoritesPinnedAndSticky,
     customTextFilter: state.customTextFilter,
     lastReleaseDate: state.lastReleaseDate,

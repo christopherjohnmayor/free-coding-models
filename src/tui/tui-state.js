@@ -70,6 +70,8 @@ export function intervalToPingMode(intervalMs) {
  *   sessionId: string,
  *   latestVersion: string|null,
  *   isDevMode: boolean,
+ *   updateWarningMessage?: string|null,
+ *   updateInstallFailures?: number,
  * }} opts
  * @returns {object} The complete TUI state (mutable)
  */
@@ -80,6 +82,8 @@ export function createTuiState({
   sessionId,
   latestVersion,
   isDevMode,
+  updateWarningMessage = null,
+  updateInstallFailures = 0,
 }) {
   const now = Date.now()
 
@@ -110,6 +114,8 @@ export function createTuiState({
 
     // 📖 Version tracking — startup auto-check + periodic re-check
     startupLatestVersion: latestVersion,
+    updateWarningMessage,
+    updateInstallFailures,
     lastReleaseDate: null,
     versionAlertsEnabled: !isDevMode,
 
