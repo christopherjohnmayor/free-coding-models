@@ -37,6 +37,7 @@ const ANALYSIS_FLAGS = [
 
 const CONFIG_FLAGS = [
   { flag: 'web | --web | --gui', description: 'Start the full-catalog realtime Web Dashboard' },
+  { flag: 'playground | --playground', description: 'Open the in-TUI Playground chat overlay (auto-starts the router if needed)' },
   { flag: '--daemon', description: 'Start the FCM Router daemon + web dashboard (same port)' },
   { flag: '--daemon-bg', description: 'Start the FCM Router daemon in the background' },
   { flag: '--daemon-status', description: 'Print FCM Router daemon status JSON' },
@@ -54,6 +55,7 @@ const EXAMPLES = [
   'free-coding-models --daemon-status',
   'free-coding-models --sync-set',
   'free-coding-models --sync-set my-coding-set',
+  'free-coding-models --playground',
   'free-coding-models --openclaw --tier S',
   "free-coding-models --json | jq '.[0]'",
 ]

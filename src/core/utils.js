@@ -417,6 +417,7 @@ export function findBestModel(results) {
 //     --xcode, --gemini, --jcode, --copilot, --forgecode,
 //     --daemon, --daemon-bg, --daemon-stop,
 //     --daemon-status, --no-telemetry, --json, --help/-h (case-insensitive)
+//     --playground / playground subcommand (open the in-TUI chat playground)
 //   - Value flag: --tier <letter> (the next non-flag arg is the tier value)
 //
 // Returns:
@@ -519,6 +520,11 @@ export function parseArgs(argv) {
   // 📖 --web / --gui / web subcommand — launch the web dashboard instead of the TUI
   const webMode = flags.includes('--web') || flags.includes('--gui') || args[0] === 'web'
 
+  // 📖 --playground / playground subcommand — boot the TUI directly into the
+  // 📖 Playground chat overlay (assumes the router daemon is running or can
+  // 📖 be started with `free-coding-models --daemon-bg` first).
+  const playgroundMode = flags.includes('--playground') || args[0] === 'playground'
+
   // New boolean flags
   const sortDesc = flags.includes('--desc')
   const sortAscFlag = flags.includes('--asc')
@@ -574,6 +580,7 @@ export function parseArgs(argv) {
     showUnconfigured,
     premiumMode,
     webMode,
+    playgroundMode,
     daemonMode,
     daemonBackgroundMode,
     daemonStopMode,

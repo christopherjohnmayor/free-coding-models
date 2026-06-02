@@ -122,13 +122,18 @@ async function main() {
     process.exit(result.ok ? 0 : 1);
   }
 
+  // 📖 --playground / playground subcommand — boot the TUI directly into the
+  // 📖 Playground chat overlay. Falls through to the TUI; the key handler
+  // 📖 opens the playground on first render.
+  const wantPlayground = cliArgs.playgroundMode === true
+
   // Validate --tier early, before entering alternate screen
   if (cliArgs.tierFilter && !TIER_LETTER_MAP[cliArgs.tierFilter]) {
     console.error(chalk.red(`  Unknown tier "${cliArgs.tierFilter}". Valid tiers: S, A, B, C`));
     process.exit(1);
   }
 
-  await runApp(cliArgs, config, { startupUpdate, isDevMode });
+  await runApp(cliArgs, config, { startupUpdate, isDevMode, wantPlayground });
 }
 
 main().catch((err) => {

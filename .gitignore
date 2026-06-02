@@ -64,3 +64,9 @@ task/reports/*.md
 # 14. Demo assets (large media)
 # demo*.gif
 # demo*.mp4
+
+# 15. Local scratch files (never committed; living notes that are not part of
+#    the public product backlog). The `ideas/` folder still tracks the public
+#    long-form planning docs; this entry only blocks the temporary new-feat
+#    scratchpad used during competitive scans.
+ideas/new_feats_updates.md

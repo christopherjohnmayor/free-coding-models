@@ -92,7 +92,8 @@
  *
  * @exports loadConfig, saveConfig, validateConfigFile, getApiKey, isProviderEnabled
  * @exports addApiKey, removeApiKey, listApiKeys — multi-key management helpers
- * @exports normalizeEndpointInstalls, normalizeRouterConfig, DEFAULT_ROUTER_SETTINGS
+ * @exports normalizeEndpointInstalls, normalizeRouterConfig, normalizeRouterPrePrompt
+ * @exports defaultRouterPrePromptText, DEFAULT_ROUTER_SETTINGS
  * @exports buildPersistedConfig, replaceConfigContents, persistApiKeysForProvider
  * @exports CONFIG_PATH — path to the JSON config file
  *
@@ -166,6 +167,14 @@ export const DEFAULT_ROUTER_SETTINGS = Object.freeze({
     priorityWeight: 0.2,
   }),
   logLevel: 'info',
+  // 📖 Default pre-prompt injected as the first system message on every
+  // 📖 /v1/chat/completions request the router proxies. Frames the assistant
+  // 📖 as the FCM routing agent. Users can disable it or replace it from the
+  // 📖 Settings page on every surface (TUI / Web / Desktop).
+  prePrompt: Object.freeze({
+    enabled: true,
+    text: 'You are free-coding-models, a free coding-model routing agent. The user is talking to you through a local router at http://localhost:19280/v1 that picks the best free coding model in real time across Groq, Cerebras, NVIDIA NIM, GitHub Models, OpenRouter, Mistral, Cloudflare, SambaNova, and more.\n\nBe concise, code-first, and direct. Prefer minimal patches over rewrites. When you show code, make it runnable. When you explain, keep it short. If the user asks which model served them, say you were routed through the local FCM router and point them at the dashboard for the live model list.',
+  }),
 })
 
 function isPlainObject(value) {
@@ -385,7 +394,41 @@ export function normalizeRouterConfig(router) {
     failover: normalizeRouterFailover(router.failover),
     scoring: normalizeRouterScoring(router.scoring),
     logLevel,
+    prePrompt: normalizeRouterPrePrompt(router.prePrompt),
   }
+}
+
+/**
+ * 📖 Normalize the pre-prompt sub-tree. The text is capped at 4000 chars to
+ * 📖 keep the per-request overhead sane and to make sure the pre-prompt is
+ * 📖 always smaller than a typical user message. A disabled pre-prompt
+ * 📖 (`enabled: false`) still preserves the text so toggling back on is a
+ * 📖 no-op rather than a destructive replace.
+ *
+ * @param {unknown} prePrompt
+ * @returns {{ enabled: boolean, text: string }}
+ */
+export function normalizeRouterPrePrompt(prePrompt) {
+  const fallback = DEFAULT_ROUTER_SETTINGS.prePrompt
+  if (!isPlainObject(prePrompt)) {
+    return { enabled: fallback.enabled, text: fallback.text }
+  }
+  const rawText = typeof prePrompt.text === 'string' ? prePrompt.text : ''
+  const trimmedText = rawText.slice(0, 4000)
+  return {
+    enabled: prePrompt.enabled === true,
+    text: trimmedText,
+  }
+}
+
+/**
+ * 📖 Returns the default pre-prompt text. Surfaced by the Settings UI so the
+ * 📖 user can hit "Restore default" without retyping the whole persona.
+ *
+ * @returns {string}
+ */
+export function defaultRouterPrePromptText() {
+  return DEFAULT_ROUTER_SETTINGS.prePrompt.text
 }
 
 function normalizeProfileSettings(settings) {

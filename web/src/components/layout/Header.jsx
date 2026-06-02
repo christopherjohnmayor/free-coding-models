@@ -13,7 +13,7 @@ import {
   IconBolt, IconSearch, IconDownload, IconSettings, IconMoon, IconSun,
   IconPlayerPlay, IconCommand, IconLayoutDashboard, IconActivity,
   IconSparkles, IconRoute, IconDots, IconQuestionMark, IconHistory,
-  IconPlug, IconFolders, IconMenu2,
+  IconPlug, IconFolders, IconMenu2, IconMessageChatbot,
 } from '@tabler/icons-react'
 import ToolPicker from '../tools/ToolPicker.jsx'
 import styles from './Header.module.css'
@@ -27,6 +27,7 @@ const NAV_ITEMS = [
   { id: 'analytics',   label: 'Analytics',   icon: IconActivity },
   { id: 'recommend',   label: 'Recommend',   icon: IconSparkles },
   { id: 'router',      label: 'Router',      icon: IconRoute },
+  { id: 'playground',  label: 'Playground',  icon: IconMessageChatbot },
 ]
 
 // 📖 Overflow menu items — Help + Changelog shipped in M2; Install Endpoints

@@ -394,7 +394,17 @@ function getWebConfigPayload(runtime) {
       cliOnly: src.cliOnly || false,
     }
   }
-  return { providers, totalModels: MODELS.length }
+  const router = runtime.routerConfig()
+  return {
+    providers,
+    totalModels: MODELS.length,
+    prePrompt: {
+      enabled: router.prePrompt?.enabled === true,
+      text: router.prePrompt?.text || '',
+      isDefault: router.prePrompt?.text === DEFAULT_ROUTER_SETTINGS.prePrompt.text
+        && router.prePrompt?.enabled === DEFAULT_ROUTER_SETTINGS.prePrompt.enabled,
+    },
+  }
 }
 
 const WEB_DIST_DIR = resolvePath(__dirname, '..', '..', 'web', 'dist')
@@ -614,6 +624,54 @@ function readJsonBody(req) {
     }
     return parsed
   })
+}
+
+/**
+ * 📖 Inject the configured router pre-prompt as the first `system` message
+ * 📖 of the request, ahead of any user-provided messages. The pre-prompt is
+ * 📖 always prepended (not appended) so it takes precedence over the
+ * 📖 per-conversation tone; user `system` messages after the pre-prompt can
+ * 📖 still override specific instructions.
+ *
+ * 📖 If the pre-prompt is disabled or empty, the messages array is returned
+ * 📖 as-is. The function is pure: it never mutates the input.
+ *
+ * @param {unknown} messages
+ * @param {{ enabled?: boolean, text?: string }|null|undefined} prePrompt
+ * @returns {Array}
+ */
+export function injectPrePrompt(messages, prePrompt) {
+  if (!Array.isArray(messages)) return messages
+  if (!prePrompt || prePrompt.enabled !== true) return messages
+  const text = typeof prePrompt.text === 'string' ? prePrompt.text.trim() : ''
+  if (!text) return messages
+  // 📖 Skip injection if the very first message is already an exact match —
+  // 📖 prevents duplicate system messages when the client retries a request
+  // 📖 or the Playground already sent the pre-prompt itself.
+  const first = messages[0]
+  if (first && first.role === 'system' && typeof first.content === 'string' && first.content.trim() === text) {
+    return messages
+  }
+  return [{ role: 'system', content: text }, ...messages]
+}
+
+/**
+ * 📖 Apply the pre-prompt to a chat-completion body. Returns a new body so
+ * 📖 we never mutate the client's payload. Used by both the streaming and
+ * 📖 non-streaming proxy paths.
+ *
+ * @param {Record<string, unknown>|null|undefined} body
+ * @param {{ enabled?: boolean, text?: string }|null|undefined} prePrompt
+ * @returns {Record<string, unknown>}
+ */
+export function applyPrePromptToBody(body, prePrompt) {
+  const safeBody = (body && typeof body === 'object' && !Array.isArray(body)) ? body : {}
+  // 📖 If the body is missing `messages`, start with an empty array so
+  // 📖 downstream code that always expects `messages` does not have to
+  // 📖 special-case the pre-prompt path.
+  const baseMessages = Array.isArray(safeBody.messages) ? safeBody.messages : []
+  const messages = injectPrePrompt(baseMessages, prePrompt)
+  return { ...safeBody, messages }
 }
 
 class RouterLogger {
@@ -1547,8 +1605,12 @@ class RouterRuntime {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), this.routerConfig().failover.requestTimeoutMs)
     const started = performance.now()
+    // 📖 Pre-prompt is injected server-side so every client (OpenAI SDK,
+    // 📖 curl, custom Playground) gets the FCM persona without any client
+    // 📖 change. Non-streaming path.
+    const bodyWithPrePrompt = applyPrePromptToBody(body, this.routerConfig().prePrompt)
     const upstreamBody = {
-      ...body,
+      ...bodyWithPrePrompt,
       model: getApiModelId(candidate.provider, candidate.model),
       stream: false,
     }
@@ -1681,8 +1743,12 @@ class RouterRuntime {
     }
     const controller = new AbortController()
     const started = performance.now()
+    // 📖 Pre-prompt is injected server-side so every client (OpenAI SDK,
+    // 📖 curl, custom Playground) gets the FCM persona without any client
+    // 📖 change. Streaming path.
+    const bodyWithPrePrompt = applyPrePromptToBody(body, this.routerConfig().prePrompt)
     const upstreamBody = {
-      ...body,
+      ...bodyWithPrePrompt,
       model: getApiModelId(candidate.provider, candidate.model),
       stream: true,
     }
@@ -2028,6 +2094,50 @@ class RouterRuntime {
       }
       if (req.method === 'GET' && url.pathname === '/api/config') {
         sendJson(res, 200, getWebConfigPayload(this), { 'x-request-id': requestId })
+        return
+      }
+      if (url.pathname === '/api/router/preprompt') {
+        // 📖 Pre-prompt lives in `~/.free-coding-models.json` under
+        // 📖 `router.prePrompt`. The GET returns the effective value so the
+        // 📖 Playground can render it next to the input box, and the PUT
+        // 📖 updates the persisted config and triggers a hot reload so the
+        // 📖 next proxied request uses the new pre-prompt without restart.
+        if (req.method === 'GET') {
+          const router = this.routerConfig()
+          const fallback = DEFAULT_ROUTER_SETTINGS.prePrompt
+          const isDefault = router.prePrompt?.text === fallback.text && router.prePrompt?.enabled === fallback.enabled
+          sendJson(res, 200, {
+            enabled: router.prePrompt?.enabled === true,
+            text: router.prePrompt?.text || '',
+            isDefault,
+            defaultText: fallback.text,
+          }, { 'x-request-id': requestId })
+          return
+        }
+        if (req.method === 'PUT') {
+          if (!isSameOriginOrLocal(req)) {
+            sendError(res, 403, 'Forbidden cross-origin request', 'invalid_request_error', 'forbidden_origin', requestId)
+            return
+          }
+          const body = await readJsonBody(req)
+          const nextEnabled = body?.enabled === true
+          const nextText = typeof body?.text === 'string' ? body.text.slice(0, 4000) : ''
+          const nextRouter = {
+            ...this.routerConfig(),
+            prePrompt: { enabled: nextEnabled, text: nextText },
+          }
+          this.setRouterConfig(nextRouter)
+          this.saveRouterConfig()
+          this.broadcast('config', { activeSet: this.routerConfig().activeSet, prePrompt: this.routerConfig().prePrompt })
+          sendJson(res, 200, {
+            ok: true,
+            enabled: nextEnabled,
+            text: nextText,
+            isDefault: nextText === DEFAULT_ROUTER_SETTINGS.prePrompt.text && nextEnabled === DEFAULT_ROUTER_SETTINGS.prePrompt.enabled,
+          }, { 'x-request-id': requestId })
+          return
+        }
+        sendError(res, 405, 'Method not allowed', 'invalid_request_error', 'method_not_allowed', requestId, { allowed: ['GET', 'PUT'] })
         return
       }
       if (req.method === 'GET' && url.pathname === '/api/events') {

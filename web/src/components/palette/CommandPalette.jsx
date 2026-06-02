@@ -42,6 +42,7 @@ function buildWebEntries(deps) {
     // Pages (open as modals)
     { id: 'page.help', section: 'page', label: 'Open Help', keywords: ['help', 'shortcuts', 'reference'], run: () => deps.onOpenHelp?.() },
     { id: 'page.changelog', section: 'page', label: 'Open Changelog', keywords: ['changelog', 'release', 'history', 'version'], run: () => onOpenChangelog?.() },
+    { id: 'page.playground', section: 'page', label: 'Open Playground', keywords: ['playground', 'chat', 'try', 'prompt', 'router'], run: () => deps.onOpenPlayground?.() },
     { id: 'page.install-endpoints', section: 'page', label: 'Open Install Endpoints (M4)', keywords: ['install', 'endpoint', 'tool', 'configure'], disabled: true },
     { id: 'page.installed-models', section: 'page', label: 'Open Installed Models (M4)', keywords: ['installed', 'models', 'tools'], disabled: true },
 

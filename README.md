@@ -338,6 +338,40 @@ Configure tools with:
 
 The daemon auto-creates a `fast-coding` set from your configured providers on first start. It stores router settings in `~/.free-coding-models.json`, writes lifecycle logs to `~/.free-coding-models-daemon.log`, and tracks token metadata in `~/.free-coding-models-tokens.json`.
 
+### Playground — chat with the router
+
+Every chat that goes through the FCM router starts with a configurable **pre-prompt** that introduces the assistant as the free-coding-models routing agent. The Playground is the fastest way to try the router without configuring a coding tool.
+
+```bash
+# 1. Start the router (if it isn't already)
+free-coding-models --daemon-bg
+
+# 2. Open the Playground in the TUI
+free-coding-models --playground
+# ... or just press ; inside the TUI
+# ... or click "Playground" in the web dashboard header
+```
+
+The Playground:
+
+- Streams responses token-by-token (SSE).
+- Shows the routed-via provider/model + latency + tokens on every reply.
+- Lets you pin a specific model (`fcm` = auto-router, or `groq/<id>` / `cerebras/<id>` / etc.) for manual A/B testing.
+- Lets you toggle the pre-prompt per session, so you can see what the model answers *with* and *without* the FCM persona.
+
+The pre-prompt lives in the router config under `router.prePrompt` and can be edited from any surface (the daemon reloads it on its 10s config-refresh tick):
+
+```json
+{
+  "router": {
+    "prePrompt": {
+      "enabled": true,
+      "text": "You are free-coding-models, the free coding-model routing agent..."
+    }
+  }
+}
+```
+
 Router endpoints:
 
 | Endpoint | Purpose |
@@ -464,6 +498,7 @@ When a tool mode is active (via `Z`), models incompatible with that tool are hig
 | `X` | Clear active custom text filter |
 | `G` | Cycle global theme (`Auto → Dark → Light`) |
 | `Ctrl+P` | Open ⚡️ command palette (search + run actions) |
+| `;` | Open the Playground chat overlay (chat with the FCM router) |
 | `Ctrl+A` | Run AI Speed Test for the selected model |
 | `Ctrl+U` | Run Global AI Speed Test (uses real provider requests) |
 | `R/S/C/M/O/L/A/H/V/B/U` | Sort columns |
@@ -510,6 +545,8 @@ When a tool mode is active (via `Z`), models incompatible with that tool are hig
 - **Keyless latency** — models ping even without an API key (show 🔑 NO KEY)
 - **Smart Recommend** — questionnaire picks the best model for your task type
 - **Smart Model Router** — local OpenAI-compatible daemon with model sets, failover, circuit breakers, health probes, and token stats
+- **Playground chat** — multi-turn chat with the router on every surface (TUI `;` / Web Playground nav / `free-coding-models --playground`). Streams responses and shows the routed-via provider/model on every reply.
+- **Router pre-prompt** — a configurable first-class system message injected by the daemon on every `/v1/chat/completions` request it proxies. Default persona introduces the assistant as the FCM routing agent; editable from any surface.
 - **⚡️ Command Palette** — `Ctrl+P` opens a searchable action launcher for filters, sorting, overlays, and quick toggles
 - **Install Endpoints** — push a full provider catalog into any tool's config (from Settings `P` or ⚡️ Command Palette)
 - **Missing tool bootstrap** — detect absent CLIs, offer one-click install, then continue the selected launch automatically

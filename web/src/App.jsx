@@ -42,6 +42,7 @@ import UpdateChip from './components/update/UpdateChip.jsx'
 import RecommendView from './components/recommend/RecommendView.jsx'
 import IncompatibleFallbackModal from './components/launch/IncompatibleFallbackModal.jsx'
 import RouterView from './components/router/RouterView.jsx'
+import PlaygroundView from './components/playground/PlaygroundView.jsx'
 import InstalledModelsView from './components/installed/InstalledModelsView.jsx'
 import InstallEndpointsView from './components/install/InstallEndpointsView.jsx'
 import ToastContainer from './components/atoms/ToastContainer.jsx'
@@ -69,6 +70,7 @@ export default function App() {
   const [changelogDefaultVersion, setChangelogDefaultVersion] = useState(null)
   const [recommendOpen, setRecommendOpen] = useState(false)
   const [routerOpen, setRouterOpen] = useState(false)
+  const [playgroundOpen, setPlaygroundOpen] = useState(false)
   const [installedModelsOpen, setInstalledModelsOpen] = useState(false)
   const [installEndpointsOpen, setInstallEndpointsOpen] = useState(false)
   const [incompatibleRequest, setIncompatibleRequest] = useState(null)
@@ -233,6 +235,7 @@ export default function App() {
     if (viewId === 'changelog') { setChangelogOpen(true); setChangelogDefaultVersion(null); return }
     if (viewId === 'recommend') { setRecommendOpen(true); return }
     if (viewId === 'router') { setRouterOpen(true); return }
+    if (viewId === 'playground') { setPlaygroundOpen(true); return }
     if (viewId === 'install-endpoints') { setInstallEndpointsOpen(true); return }
     if (viewId === 'installed-models') { setInstalledModelsOpen(true); return }
     setCurrentView(VIEW_TO_NAV[viewId] || viewId)
@@ -272,6 +275,7 @@ export default function App() {
         if (changelogOpen) { setChangelogOpen(false); return }
         if (recommendOpen) { setRecommendOpen(false); return }
         if (routerOpen) { setRouterOpen(false); return }
+        if (playgroundOpen) { setPlaygroundOpen(false); return }
         if (installEndpointsOpen) { setInstallEndpointsOpen(false); return }
         if (installedModelsOpen) { setInstalledModelsOpen(false); return }
         if (incompatibleRequest) { setIncompatibleRequest(null); return }
@@ -281,7 +285,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [paletteOpen, helpOpen, changelogOpen, recommendOpen, routerOpen, installEndpointsOpen, installedModelsOpen, incompatibleRequest, selectedModel, exportOpen])
+  }, [paletteOpen, helpOpen, changelogOpen, recommendOpen, routerOpen, playgroundOpen, installEndpointsOpen, installedModelsOpen, incompatibleRequest, selectedModel, exportOpen])
 
   useEffect(() => {
     if (currentView === 'recommend') {
@@ -416,6 +420,7 @@ export default function App() {
           onSetPingMode={handlePingModeChange}
           onOpenHelp={() => setHelpOpen(true)}
           onOpenChangelog={() => { setChangelogDefaultVersion(null); setChangelogOpen(true) }}
+          onOpenPlayground={() => setPlaygroundOpen(true)}
           onExport={() => setExportOpen(true)}
           onRunUpdate={runUpdate}
           currentView={currentView}
@@ -464,6 +469,15 @@ export default function App() {
         <RouterView
           onClose={() => setRouterOpen(false)}
           onToast={addToast}
+        />
+      )}
+
+      {playgroundOpen && (
+        <PlaygroundView
+          onClose={() => setPlaygroundOpen(false)}
+          onToast={addToast}
+          models={models}
+          routerStatus={null}
         />
       )}
 

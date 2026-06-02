@@ -1215,6 +1215,93 @@ async function handleRequest(req, res) {
         return
       }
 
+      case '/api/router/preprompt': {
+        // 📖 Read or update the router pre-prompt. GET reads from the
+        // 📖 in-process config (so we don't need a live daemon); PUT writes
+        // 📖 back to `~/.free-coding-models.json` and the daemon picks up the
+        // 📖 new value on its 10s config-reload tick without needing a restart.
+        if (req.method === 'GET') {
+          const routerConfig = config.router || {}
+          const pre = routerConfig.prePrompt || { enabled: false, text: '' }
+          sendJson(res, 200, {
+            enabled: pre.enabled === true,
+            text: pre.text || '',
+          })
+          return
+        }
+        if (req.method === 'PUT') {
+          const body = await readJsonBody(req)
+          const nextEnabled = body?.enabled === true
+          const nextText = typeof body?.text === 'string' ? body.text.slice(0, 4000) : ''
+          if (!config.router || typeof config.router !== 'object') config.router = {}
+          config.router.prePrompt = { enabled: nextEnabled, text: nextText }
+          saveConfig(config)
+          noteUserActivity()
+          sendJson(res, 200, { ok: true, enabled: nextEnabled, text: nextText })
+          return
+        }
+        res.writeHead(405); res.end('Method Not Allowed')
+        return
+      }
+
+      case '/api/playground/chat': {
+        // 📖 Playground proxy: forwards a chat-completions request to the
+        // 📖 local router daemon and returns the response. Streams SSE
+        // 📖 events when stream: true is set. The web playground UI is just
+        // 📖 a thin client over this endpoint so the browser never talks to
+        // 📖 an external domain (no CORS, no exposed provider keys).
+        if (req.method !== 'POST') { res.writeHead(405); res.end('Method Not Allowed'); return }
+        const port = await readDaemonPort()
+        if (!port) {
+          sendJson(res, 503, { ok: false, error: 'Router daemon is not running. Start it from the Router card or with `free-coding-models --daemon-bg`.' })
+          return
+        }
+        const body = await readJsonBody(req)
+        const wantsStream = body?.stream === true
+        const upstreamUrl = `http://127.0.0.1:${port}/v1/chat/completions`
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 120000)
+        req.on('close', () => controller.abort())
+        try {
+          const upstreamResp = await fetch(upstreamUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...body, stream: wantsStream, model: body?.model || 'fcm' }),
+            signal: controller.signal,
+          })
+          if (wantsStream) {
+            // 📖 Pipe SSE events straight from the daemon to the browser.
+            res.writeHead(upstreamResp.status, {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive',
+              'X-Accel-Buffering': 'no',
+            })
+            const reader = upstreamResp.body?.getReader()
+            if (!reader) { res.end(); clearTimeout(timeout); return }
+            try {
+              while (true) {
+                const { value, done } = await reader.read()
+                if (done) break
+                if (value) res.write(Buffer.from(value))
+              }
+            } finally {
+              clearTimeout(timeout)
+              res.end()
+            }
+            return
+          }
+          const json = await upstreamResp.json().catch(() => null)
+          sendJson(res, upstreamResp.status, json || { ok: false, error: 'Empty response from router' })
+          return
+        } catch (err) {
+          sendJson(res, 502, { ok: false, error: `Playground proxy failed: ${err.message || String(err)}` })
+          return
+        } finally {
+          clearTimeout(timeout)
+        }
+      }
+
       // ── M4: Installed Models — scan tool configs + soft-delete ────────────
       case '/api/installed-models': {
         if (req.method !== 'GET') { res.writeHead(405); res.end('Method Not Allowed'); return }

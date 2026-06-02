@@ -55,6 +55,11 @@ import {
   restartRouterDashboardDaemon,
   toggleRouterDashboardProbePause,
 } from '../core/router-dashboard.js'
+import {
+  closePlaygroundOverlay,
+  openPlaygroundOverlay,
+  handlePlaygroundKeypress,
+} from '../core/playground.js'
 import { benchmarkModel } from '../core/benchmark.js'
 
 // 📖 Some providers need an explicit probe model because the first catalog entry
@@ -1283,6 +1288,7 @@ export function createKeyHandler(ctx) {
       || state.toolInstallPromptOpen
       || state.installedModelsOpen
       || state.routerDashboardOpen
+      || state.playgroundOpen
       || state.recommendOpen
 
       || state.helpVisible
@@ -1475,6 +1481,7 @@ export function createKeyHandler(ctx) {
 
       case 'open-recommend': return openRecommendOverlay()
       case 'open-router-dashboard': return openRouterDashboardOverlay(state)
+      case 'open-playground': return openPlaygroundOverlay(state)
       case 'open-token-usage': return openTokenUsageOverlay()
       case 'open-install-endpoints': return openInstallEndpointsOverlay()
       case 'open-installed-models': return openInstalledModelsOverlay()
@@ -1742,6 +1749,14 @@ export function createKeyHandler(ctx) {
         clearRouterDashboardRequestLog(state)
         return
       }
+      return
+    }
+
+    // 📖 Playground overlay: handles Enter, Esc, Backspace, Ctrl+S, Ctrl+L,
+    // 📖 PageUp/PageDown, and printable input itself. The dedicated handler
+    // 📖 in core/playground.js owns the draft and submission state.
+    if (state.playgroundOpen) {
+      if (handlePlaygroundKeypress(key.string != null ? key.string : key.name, { fetchFn: globalThis.fetch })) return
       return
     }
 
@@ -2835,6 +2850,13 @@ export function createKeyHandler(ctx) {
     // 📖 Q key: open Smart Recommend overlay
     if (key.name === 'q') {
       openRecommendOverlay()
+      return
+    }
+
+    // 📖 ; (semicolon) key: open the Playground chat overlay. Avoids clashes
+    // 📖 with P (settings), K (help), Z (tool), N (changelog), etc.
+    if (key.name === ';' || (key.shift && key.name === ':')) {
+      void openPlaygroundOverlay(state)
       return
     }
 

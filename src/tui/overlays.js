@@ -22,6 +22,7 @@
 import { loadChangelog } from '../core/changelog-loader.js'
 import { buildCliHelpLines } from './cli-help.js'
 import { renderRouterDashboard as renderRouterDashboardOverlay } from '../core/router-dashboard.js'
+import { renderPlayground as renderPlaygroundOverlay } from '../core/playground.js'
 import { themeColors, getThemeStatusLabel, getProviderRgb } from './theme.js'
 
 export function createOverlayRenderers(state, deps) {
@@ -1334,6 +1335,15 @@ export function createOverlayRenderers(state, deps) {
     return renderRouterDashboardOverlay(state, { LOCAL_VERSION })
   }
 
+  // ─── Playground overlay ───────────────────────────────────────────────────────
+  // 📖 Renders the in-TUI chat playground when the user presses `;` or opens
+  // 📖 it from the command palette. All chat traffic flows to the local
+  // 📖 daemon over HTTP, so the TUI process never has to import the
+  // 📖 provider catalog.
+  function renderPlayground() {
+    return renderPlaygroundOverlay(state, state.terminalRows, state.terminalCols)
+  }
+
   // ─── Incompatible fallback overlay ─────────────────────────────────────────
   // 📖 renderIncompatibleFallback shows when user presses Enter on a model that
   // 📖 is NOT compatible with the active tool. Two sections:
@@ -1615,6 +1625,7 @@ export function createOverlayRenderers(state, deps) {
     renderChangelog,
     renderInstalledModels,
     renderRouterDashboard,
+    renderPlayground,
     renderIncompatibleFallback,
     renderTokenUsage,
     renderRouterOnboarding,

@@ -211,6 +211,7 @@ const BASE_COMMAND_TREE = [
   { id: 'open-changelog', label: 'Changelog', icon: '📋', type: 'page', description: 'Version history', keywords: ['changelog', 'release'] },
 
   { id: 'open-recommend', label: 'Smart recommend', shortcut: 'Q', icon: '🎯', type: 'page', description: 'Find best model for task', keywords: ['recommend', 'best model'] },
+  { id: 'open-playground', label: 'Playground', shortcut: ';', icon: '💬', type: 'page', description: 'Chat with the FCM router', keywords: ['playground', 'chat', 'try', 'prompt', 'router'] },
   { id: 'open-install-endpoints', label: 'Install endpoints', icon: '🔌', type: 'page', description: 'Install provider catalogs', keywords: ['install', 'endpoints', 'providers'] },
   { id: 'open-installed-models', label: 'Installed models', icon: '🗂️', type: 'page', description: 'View models configured in tools', keywords: ['installed', 'models', 'configured', 'tools', 'manager', 'goose', 'crush', 'aider'] },
 ]

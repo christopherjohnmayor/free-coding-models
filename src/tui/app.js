@@ -343,6 +343,12 @@ export async function runApp(cliArgs, config, startupOptions = {}) {
     updateInstallFailures: startupUpdate.failures || 0,
   })
 
+  // 📖 `--playground` / `playground` subcommand: open the in-TUI chat
+  // 📖 overlay on first render so the user lands directly in the chat.
+  if (startupOptions.wantPlayground === true) {
+    state.playgroundOpen = true
+  }
+
   // 📖 Apply the pre-fetched last release date now that state is initialized
   state.lastReleaseDate = lastReleaseDate
 
@@ -759,7 +765,7 @@ export async function runApp(cliArgs, config, startupOptions = {}) {
     // 📖 usable right now: models enter/leave as soon as ping status changes.
     applyTierFilter()
     // 📖 Cache visible+sorted models each frame so Enter handler always matches the display
-    if (!state.settingsOpen && !state.installEndpointsOpen && !state.toolInstallPromptOpen && !state.incompatibleFallbackOpen && !state.recommendOpen && !state.changelogOpen && !state.installedModelsOpen && !state.routerDashboardOpen && !state.commandPaletteOpen) {
+    if (!state.settingsOpen && !state.installEndpointsOpen && !state.toolInstallPromptOpen && !state.incompatibleFallbackOpen && !state.recommendOpen && !state.changelogOpen && !state.installedModelsOpen && !state.routerDashboardOpen && !state.playgroundOpen && !state.commandPaletteOpen) {
       const visible = state.results.filter(r => !r.hidden)
       state.visibleSorted = sortResultsWithPinnedFavorites(visible, state.sortColumn, state.sortDirection, {
         pinFavorites: state.favoritesPinnedAndSticky,
@@ -834,6 +840,8 @@ export async function runApp(cliArgs, config, startupOptions = {}) {
         ? overlays.renderInstalledModels()
       : state.routerDashboardOpen
         ? overlays.renderRouterDashboard()
+      : state.playgroundOpen
+        ? overlays.renderPlayground()
       : state.tokenUsageOpen
         ? overlays.renderTokenUsage()
       : state.routerOnboardingOpen
