@@ -41,6 +41,9 @@ import ChangelogView from './components/changelog/ChangelogView.jsx'
 import UpdateChip from './components/update/UpdateChip.jsx'
 import RecommendView from './components/recommend/RecommendView.jsx'
 import IncompatibleFallbackModal from './components/launch/IncompatibleFallbackModal.jsx'
+import RouterView from './components/router/RouterView.jsx'
+import InstalledModelsView from './components/installed/InstalledModelsView.jsx'
+import InstallEndpointsView from './components/install/InstallEndpointsView.jsx'
 import ToastContainer from './components/atoms/ToastContainer.jsx'
 import { isModelCompatibleWithTool } from '../../src/core/tool-metadata.js'
 
@@ -65,6 +68,9 @@ export default function App() {
   const [changelogOpen, setChangelogOpen] = useState(false)
   const [changelogDefaultVersion, setChangelogDefaultVersion] = useState(null)
   const [recommendOpen, setRecommendOpen] = useState(false)
+  const [routerOpen, setRouterOpen] = useState(false)
+  const [installedModelsOpen, setInstalledModelsOpen] = useState(false)
+  const [installEndpointsOpen, setInstallEndpointsOpen] = useState(false)
   const [incompatibleRequest, setIncompatibleRequest] = useState(null)
   const [toasts, setToasts] = useState([])
   const lastActivityRef = useRef(Date.now())
@@ -226,9 +232,9 @@ export default function App() {
     if (viewId === 'help') { setHelpOpen(true); return }
     if (viewId === 'changelog') { setChangelogOpen(true); setChangelogDefaultVersion(null); return }
     if (viewId === 'recommend') { setRecommendOpen(true); return }
-    if (viewId === 'router') { addToast?.('Router dashboard arrives in M4', 'info'); return }
-    if (viewId === 'install-endpoints') { addToast?.('Use the plug button on any model row to install its endpoint.', 'info'); return }
-    if (viewId === 'installed-models') { addToast?.('Installed Models arrives in M4', 'info'); return }
+    if (viewId === 'router') { setRouterOpen(true); return }
+    if (viewId === 'install-endpoints') { setInstallEndpointsOpen(true); return }
+    if (viewId === 'installed-models') { setInstalledModelsOpen(true); return }
     setCurrentView(VIEW_TO_NAV[viewId] || viewId)
     lastActivityRef.current = Date.now()
   }, [addToast])
@@ -265,6 +271,9 @@ export default function App() {
         if (helpOpen) { setHelpOpen(false); return }
         if (changelogOpen) { setChangelogOpen(false); return }
         if (recommendOpen) { setRecommendOpen(false); return }
+        if (routerOpen) { setRouterOpen(false); return }
+        if (installEndpointsOpen) { setInstallEndpointsOpen(false); return }
+        if (installedModelsOpen) { setInstalledModelsOpen(false); return }
         if (incompatibleRequest) { setIncompatibleRequest(null); return }
         if (selectedModel) { setSelectedModel(null); return }
         if (exportOpen) { setExportOpen(false); return }
@@ -272,7 +281,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [paletteOpen, helpOpen, changelogOpen, recommendOpen, incompatibleRequest, selectedModel, exportOpen])
+  }, [paletteOpen, helpOpen, changelogOpen, recommendOpen, routerOpen, installEndpointsOpen, installedModelsOpen, incompatibleRequest, selectedModel, exportOpen])
 
   useEffect(() => {
     if (currentView === 'recommend') {
@@ -448,6 +457,27 @@ export default function App() {
         <ChangelogView
           onClose={() => setChangelogOpen(false)}
           defaultVersion={changelogDefaultVersion}
+        />
+      )}
+
+      {routerOpen && (
+        <RouterView
+          onClose={() => setRouterOpen(false)}
+          onToast={addToast}
+        />
+      )}
+
+      {installedModelsOpen && (
+        <InstalledModelsView
+          onClose={() => setInstalledModelsOpen(false)}
+          onToast={addToast}
+        />
+      )}
+
+      {installEndpointsOpen && (
+        <InstallEndpointsView
+          onClose={() => setInstallEndpointsOpen(false)}
+          onToast={addToast}
         />
       )}
 

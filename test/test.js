@@ -5347,6 +5347,135 @@ describe('M3 web parity helpers and wiring', () => {
 })
 
 // ─── M2: React hook modules import cleanly (no syntax errors) ────────────
+// (M2 tests are below M4)
+
+// ─── M4: Router, Token Usage, Installed Models, Install Endpoints ──────────
+describe('M4: Router dashboard + Token Usage + Installed Models + Install Endpoints', () => {
+  it('web server exposes M4 router proxy endpoints', () => {
+    const source = readFileSync(join(ROOT, 'web/server.js'), 'utf8')
+    for (const route of ['/api/router/status', '/api/router/stats', '/api/router/tokens', '/api/router/start', '/api/router/stop', '/api/router/sets', '/api/router/probe-mode', '/api/router/quick-setup']) {
+      assert.ok(source.includes(`case '${route}'`), `${route} route should exist`)
+    }
+  })
+
+  it('web server exposes M4 installed-models and install-endpoints endpoints', () => {
+    const source = readFileSync(join(ROOT, 'web/server.js'), 'utf8')
+    for (const route of ['/api/installed-models', '/api/install-endpoints/providers', '/api/install-endpoints/catalog', '/api/install-endpoints/wizard']) {
+      assert.ok(source.includes(`case '${route}'`), `${route} route should exist`)
+    }
+  })
+
+  it('web server imports M4 core modules', () => {
+    const source = readFileSync(join(ROOT, 'web/server.js'), 'utf8')
+    assert.match(source, /getRouterDaemonStatus/)
+    assert.match(source, /startRouterDaemonBackground/)
+    assert.match(source, /stopRouterDaemon/)
+    assert.match(source, /scanAllToolConfigs/)
+    assert.match(source, /softDeleteModel/)
+    assert.match(source, /getConfiguredInstallableProviders/)
+  })
+
+  it('M4 hooks import cleanly', async () => {
+    const routerMod = await import('../web/src/hooks/useRouterDashboard.js')
+    const tokenMod = await import('../web/src/hooks/useTokenUsage.js')
+    const installedMod = await import('../web/src/hooks/useInstalledModels.js')
+    assert.equal(typeof routerMod.useRouterDashboard, 'function')
+    assert.equal(typeof tokenMod.useTokenUsage, 'function')
+    assert.equal(typeof installedMod.useInstalledModels, 'function')
+  })
+
+  it('Header removes M4 coming-soon badges', () => {
+    const source = readFileSync(join(ROOT, 'web/src/components/layout/Header.jsx'), 'utf8')
+    assert.doesNotMatch(source, /comingIn: 'M4'/)
+  })
+
+  it('App.jsx imports and wires M4 modal components', () => {
+    const source = readFileSync(join(ROOT, 'web/src/App.jsx'), 'utf8')
+    assert.match(source, /import RouterView/)
+    assert.match(source, /import InstalledModelsView/)
+    assert.match(source, /import InstallEndpointsView/)
+    assert.match(source, /setRouterOpen/)
+    assert.match(source, /setInstalledModelsOpen/)
+    assert.match(source, /setInstallEndpointsOpen/)
+  })
+
+  it('AnalyticsView integrates TokenUsagePanel', () => {
+    const source = readFileSync(join(ROOT, 'web/src/components/analytics/AnalyticsView.jsx'), 'utf8')
+    assert.match(source, /import TokenUsagePanel/)
+    assert.match(source, /<TokenUsagePanel/)
+  })
+
+  it('InstallEndpointsView renders a 4-step wizard', () => {
+    const source = readFileSync(join(ROOT, 'web/src/components/install/InstallEndpointsView.jsx'), 'utf8')
+    assert.match(source, /STEPS.*Provider.*Tool.*Models.*Install/)
+    assert.match(source, /install-endpoints\/wizard/)
+  })
+
+  it('RouterView renders start/stop and proxy actions', () => {
+    const source = readFileSync(join(ROOT, 'web/src/components/router/RouterView.jsx'), 'utf8')
+    assert.match(source, /api\/router\/start/)
+    assert.match(source, /api\/router\/stop/)
+    assert.match(source, /api\/router\/status/)
+    assert.match(source, /api\/router\/probe-mode/)
+  })
+
+  it('InstalledModelsView uses soft-delete and scan', async () => {
+    const source = readFileSync(join(ROOT, 'web/src/components/installed/InstalledModelsView.jsx'), 'utf8')
+    assert.ok(source.includes('useInstalledModels'))
+    assert.ok(source.includes('disableModel'))
+    // 📖 The hook contains the API calls
+    const hookSource = readFileSync(join(ROOT, 'web/src/hooks/useInstalledModels.js'), 'utf8')
+    assert.ok(hookSource.includes('installed-models'))
+    assert.ok(hookSource.includes('disableModel'))
+  })
+
+  it('M4 server endpoint smoke test returns valid payloads', async () => {
+    const testHome = join(tmpdir(), `fcm-m4-test-${process.pid}`)
+    mkdirSync(testHome, { recursive: true })
+    const origHome = process.env.HOME
+    process.env.HOME = testHome
+    try {
+      const { startWebServer } = await import('../web/server.js')
+      const srv = await startWebServer(0, { open: false, startPingLoop: false })
+      const addr = srv.address()
+      const base = `http://127.0.0.1:${addr.port}`
+
+      // Router status
+      const statusResp = await fetch(`${base}/api/router/status`)
+      const statusData = await statusResp.json()
+      assert.equal(statusData.ok, false)
+      assert.equal(statusData.running, false)
+
+      // Installed models
+      const installedResp = await fetch(`${base}/api/installed-models`)
+      const installedData = await installedResp.json()
+      assert.ok(Array.isArray(installedData.results))
+
+      // Providers for wizard
+      const providersResp = await fetch(`${base}/api/install-endpoints/providers`)
+      const providersData = await providersResp.json()
+      assert.ok(Array.isArray(providersData.providers))
+
+      // Catalog
+      const catalogResp = await fetch(`${base}/api/install-endpoints/catalog?provider=nvidia`)
+      const catalogData = await catalogResp.json()
+      assert.equal(catalogData.provider, 'nvidia')
+      assert.ok(catalogData.models.length > 0)
+
+      // Tokens
+      const tokensResp = await fetch(`${base}/api/router/tokens`)
+      const tokensData = await tokensResp.json()
+      assert.ok(tokensData.all_time)
+
+      srv.close()
+    } finally {
+      process.env.HOME = origHome
+      rmSync(testHome, { recursive: true, force: true })
+    }
+  })
+})
+
+// ─── M2: React hook modules import cleanly (no syntax errors) ────────────
 describe('M2: React hook modules import cleanly', () => {
   it('useChangelog.js exports useChangelog', async () => {
     const mod = await import('../web/src/hooks/useChangelog.js')

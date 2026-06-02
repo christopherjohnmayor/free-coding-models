@@ -7,6 +7,7 @@
 import { useMemo } from 'react'
 import { IconActivity, IconTrophy } from '@tabler/icons-react'
 import TierBadge from '../atoms/TierBadge.jsx'
+import TokenUsagePanel from './TokenUsagePanel.jsx'
 import styles from './AnalyticsView.module.css'
 
 // 📖 TIER_COLORS is now derived from CSS custom properties so the chart fills
@@ -138,6 +139,9 @@ export default function AnalyticsView({ models }) {
           </div>
         </div>
       </div>
+
+      {/* M4: Token Usage — always shown, displays "no data" if router hasn't been used */}
+      <TokenUsagePanel />
     </div>
   )
 }

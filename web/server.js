@@ -46,9 +46,11 @@ import {
   getStabilityScore,
 } from '../src/core/utils.js'
 import { benchmarkModel, BENCHMARK_TIMEOUT_MS } from '../src/core/benchmark.js'
-import { getInstallTargetModes, installProviderEndpoints } from '../src/core/endpoint-installer.js'
+import { getInstallTargetModes, installProviderEndpoints, getConfiguredInstallableProviders, getProviderCatalogModels } from '../src/core/endpoint-installer.js'
 import { isModelCompatibleWithTool } from '../src/core/tool-metadata.js'
 import { sendUsageTelemetry } from '../src/core/telemetry.js'
+import { getRouterDaemonStatus, startRouterDaemonBackground, stopRouterDaemon, ROUTER_TOKENS_PATH } from '../src/core/router-daemon.js'
+import { scanAllToolConfigs, softDeleteModel } from '../src/core/installed-models-manager.js'
 import {
   TASK_TYPES,
   PRIORITY_TYPES,
@@ -522,6 +524,25 @@ function runWithConcurrency(tasks, concurrency) {
 
 const TOOL_MODE_ORDER = getInstallTargetModes()
 const TOOL_MODES = new Set(TOOL_MODE_ORDER)
+const DAEMON_PROXY_TIMEOUT_MS = 5000
+
+// ─── Router daemon proxy helper ────────────────────────────────────────────
+async function proxyToDaemon(path, options = {}) {
+  const port = await readDaemonPort()
+  if (!port) return null
+  try {
+    const url = `http://127.0.0.1:${port}${path}`
+    const resp = await fetch(url, { ...options, signal: AbortSignal.timeout(DAEMON_PROXY_TIMEOUT_MS) })
+    return { ok: resp.ok, status: resp.status, data: await resp.json().catch(() => null) }
+  } catch { return null }
+}
+
+function readTokenFile() {
+  try {
+    if (!existsSync(ROUTER_TOKENS_PATH)) return null
+    return JSON.parse(readFileSync(ROUTER_TOKENS_PATH, 'utf8'))
+  } catch { return null }
+}
 
 function normalizeToolMode(mode) {
   return typeof mode === 'string' && TOOL_MODES.has(mode) ? mode : 'opencode'
@@ -1096,7 +1117,175 @@ async function handleRequest(req, res) {
         return
       }
 
-      default:
+      // ── M4: Router dashboard endpoints ────────────────────────────────────
+      case '/api/router/status': {
+        try {
+          const status = await getRouterDaemonStatus()
+          sendJson(res, 200, status)
+        } catch (err) {
+          sendJson(res, 200, { ok: false, running: false, error: err.message })
+        }
+        return
+      }
+
+      case '/api/router/stats': {
+        const proxy = await proxyToDaemon('/stats')
+        if (proxy?.ok) { sendJson(res, 200, proxy.data); return }
+        sendJson(res, 200, { ok: false, running: false, error: 'Daemon not reachable' })
+        return
+      }
+
+      case '/api/router/tokens': {
+        // 📖 Try daemon first (live data), fall back to reading the token file
+        const proxy = await proxyToDaemon('/stats/tokens')
+        if (proxy?.ok) { sendJson(res, 200, proxy.data); return }
+        const fileData = readTokenFile()
+        if (fileData) { sendJson(res, 200, fileData); return }
+        sendJson(res, 200, { daily: {}, all_time: { total_tokens: 0, prompt_tokens: 0, completion_tokens: 0, requests: 0 } })
+        return
+      }
+
+      case '/api/router/start': {
+        if (req.method !== 'POST') { res.writeHead(405); res.end('Method Not Allowed'); return }
+        try {
+          const result = await startRouterDaemonBackground()
+          noteUserActivity()
+          sendJson(res, 200, result)
+        } catch (err) {
+          sendJson(res, 500, { ok: false, error: err.message })
+        }
+        return
+      }
+
+      case '/api/router/stop': {
+        if (req.method !== 'POST') { res.writeHead(405); res.end('Method Not Allowed'); return }
+        try {
+          const result = await stopRouterDaemon()
+          sendJson(res, 200, result)
+        } catch (err) {
+          sendJson(res, 500, { ok: false, error: err.message })
+        }
+        return
+      }
+
+      case '/api/router/sets': {
+        // 📖 Proxy set operations to the daemon
+        if (req.method === 'GET') {
+          const proxy = await proxyToDaemon('/sets')
+          if (proxy?.ok) { sendJson(res, 200, proxy.data); return }
+          // 📖 Fallback: read sets from config directly
+          const routerConfig = config.router || {}
+          sendJson(res, 200, { activeSet: routerConfig.activeSet || 'fast-coding', sets: routerConfig.sets || {} })
+          return
+        }
+        if (req.method === 'POST') {
+          const proxy = await proxyToDaemon('/sets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(await readJsonBody(req)) })
+          if (proxy?.ok) { sendJson(res, 200, proxy.data); return }
+          if (proxy?.status === 201) { sendJson(res, 201, proxy.data); return }
+          sendJson(res, proxy?.status || 502, proxy?.data || { error: 'Daemon not reachable' })
+          return
+        }
+        res.writeHead(405); res.end('Method Not Allowed')
+        return
+      }
+
+      case '/api/router/probe-mode': {
+        if (req.method !== 'POST') { res.writeHead(405); res.end('Method Not Allowed'); return }
+        const body = await readJsonBody(req)
+        const proxy = await proxyToDaemon('/daemon/probe-mode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        if (proxy?.ok) { sendJson(res, 200, proxy.data); return }
+        sendJson(res, proxy?.status || 502, proxy?.data || { error: 'Daemon not reachable' })
+        return
+      }
+
+      case '/api/router/quick-setup': {
+        // 📖 Return router connection info for quick clipboard copy
+        const port = await readDaemonPort()
+        const routerConfig = config.router || {}
+        const activeSetName = routerConfig.activeSet || 'fast-coding'
+        const baseUrl = port ? `http://127.0.0.1:${port}/v1` : null
+        sendJson(res, 200, {
+          running: !!port,
+          port: port || null,
+          baseUrl,
+          model: 'fcm',
+          activeSet: activeSetName,
+          apiKey: 'not-needed',
+        })
+        return
+      }
+
+      // ── M4: Installed Models — scan tool configs + soft-delete ────────────
+      case '/api/installed-models': {
+        if (req.method !== 'GET') { res.writeHead(405); res.end('Method Not Allowed'); return }
+        const results = scanAllToolConfigs()
+        sendJson(res, 200, { results })
+        return
+      }
+
+      // ── M4: Install Endpoints wizard — full provider install into tool ────
+      case '/api/install-endpoints/providers': {
+        if (req.method !== 'GET') { res.writeHead(405); res.end('Method Not Allowed'); return }
+        const providers = getConfiguredInstallableProviders(config)
+        sendJson(res, 200, { providers })
+        return
+      }
+
+      case '/api/install-endpoints/catalog': {
+        const catProvider = url.searchParams.get('provider')
+        if (!catProvider) { sendJson(res, 400, { error: 'Missing ?provider= parameter' }); return }
+        const models = getProviderCatalogModels(catProvider)
+        sendJson(res, 200, { provider: catProvider, models })
+        return
+      }
+
+      case '/api/install-endpoints/wizard': {
+        if (req.method !== 'POST') { res.writeHead(405); res.end('Method Not Allowed'); return }
+        const body = await readJsonBody(req)
+        const wizProvider = body?.providerKey
+        const wizTool = body?.toolMode
+        const wizScope = body?.scope || 'all'
+        const wizModelIds = body?.modelIds || []
+        if (!wizProvider || !wizTool) {
+          sendJson(res, 400, { error: 'Missing providerKey or toolMode' }); return
+        }
+        noteUserActivity()
+        try {
+          const installResult = installProviderEndpoints(config, wizProvider, wizTool, {
+            scope: wizScope,
+            modelIds: wizModelIds,
+          })
+          void sendUsageTelemetry(config, { noTelemetry: false }, {
+            event: 'app_action',
+            mode: wizTool,
+            properties: {
+              source: 'web',
+              action_type: 'install_endpoints_wizard',
+              provider: wizProvider,
+              tool_mode: wizTool,
+              scope: wizScope,
+              model_count: installResult.modelCount || 0,
+            },
+          })
+          sendJson(res, 200, { success: true, ...installResult })
+        } catch (err) {
+          sendJson(res, 422, { error: err.message, code: 'install_failed' })
+        }
+        return
+      }
+
+      // 📖 M4: soft-delete an installed model (pattern match — must be before default:)
+      // 📖 Path: /api/installed-models/:tool/:model/disable
+      default: {
+        const disableMatch = url.pathname.match(/^\/api\/installed-models\/([^/]+)\/([^/]+)\/disable$/)
+        if (disableMatch && req.method === 'POST') {
+          const toolMode = decodeURIComponent(disableMatch[1])
+          const modelId = decodeURIComponent(disableMatch[2])
+          const result = softDeleteModel(toolMode, modelId)
+          sendJson(res, result.success ? 200 : 422, result)
+          return
+        }
+      }
         // 📖 Serve Vite's /assets/* bundle, and our static favicon set that
         // 📖 Vite copies verbatim from web/public/ into web/dist/. The legacy
         // 📖 /favicon.ico lives at web/public/favicon.ico (root of public/).

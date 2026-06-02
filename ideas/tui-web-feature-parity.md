@@ -19,7 +19,7 @@
 | **M1** — Layout refactor + engine-quick wins | ✅ **DONE** | 2026-06-01 | 2026-06-01 | Shipped in npm 0.5.5 (M1 + post-M1 polish) |
 | **M2** — Settings parity + palette + URL write-back | ✅ **DONE** | 2026-06-01 | 2026-06-01 | Shipped in npm 0.5.6. Full Settings parity, full TUI command palette, help + changelog modals, update chip, URL write-back. 451 tests pass. |
 | **M3** — Smart Recommend + endpoint tool mode | ✅ **DONE** | 2026-06-01 | 2026-06-01 | Web installs selected model endpoints into tool configs; it does not start tools. Smart Recommend shipped. 463 tests pass. |
-| M4 — Router + Token Usage + Installed Models + Install Endpoints | ⏳ pending | — | — | |
+| M4 — Router + Token Usage + Installed Models + Install Endpoints | ✅ **DONE** | 2026-06-02 | 2026-06-02 | Full Router Dashboard, Token Usage panel, Installed Models modal, Install Endpoints wizard. 474 tests pass. |
 | M5 — Polish, a11y, tests, release | ⏳ pending | — | — | |
 
 ---

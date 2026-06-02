@@ -26,7 +26,7 @@ const NAV_ITEMS = [
   { id: 'settings',    label: 'Settings',    icon: IconSettings },
   { id: 'analytics',   label: 'Analytics',   icon: IconActivity },
   { id: 'recommend',   label: 'Recommend',   icon: IconSparkles },
-  { id: 'router',      label: 'Router',      icon: IconRoute,      comingIn: 'M4' },
+  { id: 'router',      label: 'Router',      icon: IconRoute },
 ]
 
 // 📖 Overflow menu items — Help + Changelog shipped in M2; Install Endpoints
@@ -34,8 +34,8 @@ const NAV_ITEMS = [
 const MENU_ITEMS = [
   { id: 'help',              label: 'Help',               icon: IconQuestionMark },
   { id: 'changelog',         label: 'Changelog',          icon: IconHistory },
-  { id: 'install-endpoints', label: 'Install Endpoints',  icon: IconPlug,         comingIn: 'M4' },
-  { id: 'installed-models',  label: 'Installed Models',   icon: IconFolders,      comingIn: 'M4' },
+  { id: 'install-endpoints', label: 'Install Endpoints',  icon: IconPlug },
+  { id: 'installed-models',  label: 'Installed Models',   icon: IconFolders },
 ]
 
 export default function Header({
