@@ -140,9 +140,9 @@ const PALETTES = {
       favoriteFg: [79, 53, 0],
     },
     // 📖 Light-mode variants — more muted, higher contrast on white bg
-    headerLogoBg: [0, 0, 0],
-    headerLogoGreen: [80, 173, 0],
-    headerLogoWhite: [255, 255, 255],
+    headerLogoBg: [255, 255, 255],
+    headerLogoGreen: [0, 120, 40],
+    headerLogoWhite: [20, 30, 45],
     cmdPalette: [0, 130, 35],
     twitterLink: [185, 45, 110],
     releaseDate: [185, 45, 85],

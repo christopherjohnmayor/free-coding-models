@@ -1177,19 +1177,16 @@ export function renderTable({
   }
   _lastLayout.footerHotkeys = footerHotkeys
 
-  // 📖 Append \x1b[K (erase to EOL) to each line so leftover chars from previous
-  // 📖 frames are cleared. \x1b[J clears stale content below without adding a
-  // 📖 newline that could scroll the alternate screen.
-  //
   // 📖 Force the theme's background colour on every line so light/dark mode
   // 📖 is respected even when the terminal's native theme doesn't match.
-  // 📖 \x1b[48;2;R;G;Bm sets the bg, and \x1b[K erases to EOL in that colour.
+  // 📖 
+  // 📖 Each line is prefixed with \x1b[48;2;R;G;Bm so the content always renders
+  // 📖 on the correct background, then \x1b[K fills to end-of-line.
+  // 📖 No \x1b[49m (bg reset) is ever emitted — the theme bg persists across frames.
   const bgRgb = THEME_BG_RGB[getTheme()] ?? THEME_BG_RGB.dark
   const BG_SET = `\x1b[48;2;${bgRgb[0]};${bgRgb[1]};${bgRgb[2]}m`
-  const EL = BG_SET + '\x1b[K'
-  const cleared = lines.map(l => l + EL)
-  if (cleared.length > 0) cleared[cleared.length - 1] += BG_SET + '\x1b[J'
-  // 📖 Reset bg only once at the very end — NOT per-line — so the entire frame
-  // 📖 stays filled with the theme bg between and after all lines.
-  return cleared.join('\n') + '\x1b[49m'
+  // 📖 Each line: set bg → render content → erase to EOL (fills with theme bg)
+  const cleared = lines.map(l => BG_SET + l + '\x1b[K')
+  if (cleared.length > 0) cleared[cleared.length - 1] += '\x1b[J'
+  return cleared.join('\n')
 }
