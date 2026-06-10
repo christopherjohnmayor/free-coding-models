@@ -49,7 +49,7 @@ import {
 } from '../core/constants.js'
 import { themeColors, currentPalette, getProviderRgb, getTierRgb, getReadableTextRgb, getTheme, THEME_BG_RGB } from './theme.js'
 import { TIER_COLOR } from './tier-colors.js'
-import { getAvg, getVerdict, getUptime, getStabilityScore, getVersionStatusInfo } from '../core/utils.js'
+import { getAvg, getVerdict, getUptime, getStabilityScore, getVersionStatusInfo, NEW_MODELS } from '../core/utils.js'
 import { usagePlaceholderForProvider } from '../core/ping.js'
 import { formatBenchmarkLatency, formatBenchmarkTps } from '../core/benchmark.js'
 import { calculateViewport, sortResultsWithPinnedFavorites, padEndDisplay, displayWidth, stripAnsi, fadedRow } from './render-helpers.js'
@@ -851,20 +851,13 @@ export function renderTable({
       verdictColor = (text) => chalk.bold.rgb(...getTierRgb('C'))(text)
       break
   }
-  // 📖 Use padEndDisplay to account for emoji display width (2 cols each) so all rows align
-  const speedCell = verdictColor(padEndDisplay(verdictText, W_VERDICT))
-  const moodCell = padEndDisplay(verdictIcon, W_MOOD)
-  
   // 📖 Add NEW badge for recently added models
+  // 📖 Use padEndDisplay to account for emoji display width (2 cols each) so all rows align
   const isNewModel = NEW_MODELS.has(r.modelId) || NEW_MODELS.has(`${r.providerKey}/${r.modelId}`)
   const newBadge = isNewModel ? '🆕' : ''
   const verdictTextWithBadge = newBadge ? `${newBadge} ${verdictText}` : verdictText
-  const speedCellWithBadge = verdictColor(padEndDisplay(verdictTextWithBadge, W_VERDICT))
-  const moodCellWithBadge = padEndDisplay(verdictIcon, W_MOOD)
-  
-  // 📖 Use the version with badge for display
-  const speedCell = speedCellWithBadge
-  const moodCell = moodCellWithBadge
+  const speedCell = verdictColor(padEndDisplay(verdictTextWithBadge, W_VERDICT))
+  const moodCell = padEndDisplay(verdictIcon, W_MOOD)
 
     // 📖 Stability column - composite score (0–100) from p95 + jitter + spikes + uptime
     // 📖 Left-aligned to sit flush under the column header

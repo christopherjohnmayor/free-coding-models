@@ -115,7 +115,7 @@ export const getAvg = (r) => {
 //
 // 📖 The "wasUpBefore" check is key — it distinguishes between a model that's
 //    temporarily flaky vs one that was never reachable in the first place.
-const NEW_MODELS = new Set([
+export const NEW_MODELS = new Set([
   'nvidia/nemotron-3-ultra-550b-a55b',
   '@cf/meta/llama-3.2-90b-instruct',
   '@cf/mistralai/mistral-7b-instruct-v0.2',
