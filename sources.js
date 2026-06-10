@@ -94,13 +94,6 @@ export const groq = [
   ['qwen/qwen3-32b',                       'Qwen3 32B',          'A+', '50.0%', '131k'],
   ['groq/compound',                        'Groq Compound',      'A',  '45.0%', '131k'],
   ['groq/compound-mini',                   'Groq Compound Mini', 'B+', '32.0%', '131k'],
-  ['whisper-large-v3', 'Whisper', 'C', '-', '-'],
-  ['whisper-large-v3-turbo', 'Whisper Large V3 Turbo', 'C', '-', '-'],
-  ['canopylabs/orpheus-arabic-saudi', 'Canopy Labs Orpheus Arabic Saudi', 'C', '-', '4k'],
-  ['canopylabs/orpheus-v1-english', 'Canopy Labs Orpheus V1 English', 'C', '-', '4k'],
-  ['meta-llama/llama-prompt-guard-2-22m', 'Llama Prompt Guard 2 22M', 'C', '-', '512'],
-  ['meta-llama/llama-prompt-guard-2-86m', 'Prompt Guard 2 86M', 'C', '-', '512'],
-  ['openai/gpt-oss-safeguard-20b', 'Safety GPT OSS 20B', 'C', '-', '131k'],
 ]
 
 // 📖 Cerebras source - https://cloud.cerebras.ai

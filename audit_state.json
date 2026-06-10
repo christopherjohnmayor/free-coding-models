@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "totalModels": 161,
+    "totalModels": 154,
     "lastFullAudit": "2026-05-31"
   },
   "nvidia": {
@@ -10,8 +10,8 @@
   },
   "groq": {
     "lastAudited": "2026-06-10",
-    "fingerprint": "55eb4c9e73b9f8d5908e9d1cc383d917",
-    "modelCount": 15
+    "fingerprint": "dc41cb7450c0b5a97ae5b4c0366656a3",
+    "modelCount": 8
   },
   "cerebras": {
     "lastAudited": "2026-05-31",
